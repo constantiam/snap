@@ -31,21 +31,21 @@ contract Fund {
         public
         isOwner()
     {
-        //TODO
+        //TODO: 
     }
 
     function manualRebalance()
         public
         isOwner()
     {
-        //TODO
+        //TODO: 
     }
 
     function killFund()
         public
         isOwner()
     {
-        //TODO
+        //TODO: 
     }
 
     function() 
