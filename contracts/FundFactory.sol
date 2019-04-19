@@ -51,5 +51,5 @@ contract FundFactory {
         }
     }
 
-    //TODO: deploying the rebalancer, updating the rebalancer
+    //TODO: intergrate : deploying the rebalancer, updating the rebalancer
 }
