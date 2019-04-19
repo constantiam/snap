@@ -9,24 +9,28 @@ contract Fund is IFund {
     uint8[] private _distribution;
 
     modifier isOwner() {
-        require(msg.sender() == _owner, "Access Denied");
+        require(msg.sender == _owner || msg.sender == _factory, "Access Denied");
+        _;
     }
 
     constructor(
-        address[] _tokenAddresses, 
-        uint8[] _percentages, 
+        address[] memory _tokenAddresses, 
+        uint8[] memory _percentages, 
         address _fundOwner
     ) 
         public
         payable
     {
-        _factory = msg.sender();
+        _factory = msg.sender;
         _owner = _fundOwner;
         _tokens = _tokenAddresses;
         _distribution = _percentages;
     }
 
-    function addTokens(address[] _tokenAddresses, uint8[] _percentages) 
+    function addTokens(
+        address[] memory _tokenAddresses, 
+        uint8[] memory _percentages
+    ) 
         public
         isOwner()
     {
@@ -60,11 +64,12 @@ contract Fund is IFund {
         public
         isOwner()
     {
-        //TODO: 
+        //TODO: send all tokens to owner and self destruct
+        selfdestruct(_owner);
     }
 
     function() 
-        public 
+        external 
         payable 
     { 
         
