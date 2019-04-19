@@ -1,14 +1,13 @@
-pragma solidity 0.4.18;
+pragma solidity 0.5.0;
 
 contract {
-    modifier isOwner() {
-        require(msg.sender() == _owner, "Access Denied");
-    }
-
-    constructor(address[] _tokenAddresses, uint8[] _percentages) public payable;
-    function addTokens(address[] _tokenAddresses, uint8[] _percentages) public isOwner();
-    function rebalance() public isOwner();
-    function manualRebalance() public isOwner();
-    function killFund() public isOwner();
-    
+    constructor(
+        address[] _tokenAddresses, 
+        uint8[] _percentages,
+        address _fundOwner
+    ) public payable;
+    function addTokens(address[] _tokenAddresses, uint8[] _percentages) public;
+    function rebalance() public;
+    function manualRebalance() public;
+    function killFund() public;
 }
