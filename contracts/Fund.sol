@@ -1,6 +1,8 @@
 pragma solidity 0.4.18;
 
-contract Fund {
+import "./IFund.sol";
+
+contract Fund is IFund {
     address private _owner;
     address[] private _tokens;
     uint8[] private _distribution;
