@@ -12,6 +12,7 @@ import Jazzicon from 'vue-jazzicon';
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import VueApexCharts from 'vue-apexcharts'
+import "typeface-space-mono";
 
 Vue.component('apexchart', VueApexCharts)
 Vue.component('VueSlider', VueSlider)

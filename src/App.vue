@@ -88,9 +88,19 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css?family=Space+Mono');
+
+html, body {
+  font-family: 'Space Mono', sans-serif;
+}
+
 #app {
   text-align: center;
   color: #2c3e50;
   margin-top: 10px;
+}
+
+#app {
+  font-family: 'Space Mono', sans-serif;
 }
 </style>

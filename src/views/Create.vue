@@ -1,116 +1,177 @@
 <template>
   <div class="page-container">
     <div class="md-layout md-alignment-top-center" style="margin-left:30px; margin-right:30px;">
-      <div class="md-layout-item">
-        <md-card style="padding-left:30px; padding-right:30px;">
-          <div v-if="selected.length > 0">
+      <div v-if="!started" class="md-layout-item">
+        <md-button @click="started=true" class="md-primary md-raised">Get Started</md-button>
+      </div>
+
+      <div v-if="started" class="md-layout-item">
+        <md-steppers :md-active-step.sync="active">
+          <md-step id="first" md-label="First Step" style="background-color: #FAFAFA" :md-done.sync="first">
             <div class="md-layout md-gutter md-alignment-center-center">
               <div class="md-layout-item">
-                <md-field>
-                  <label>Portfolio Name</label>
-                  <md-input v-model="portfolioName" maxlength="30"></md-input>
-                </md-field>
+                <md-card style="padding:20px">
+                  <h3>Set rebalance period</h3>
+                  <p>
+                    Your fund will rebalance automatically everytime this period
+                    passes. You can change this later.
+                  </p>
+                  <div class="md-layout md-gutter">
+                    <!-- <div class="md-layout-item">Rebalance Every:</div> -->
+                    <div class="md-layout-item">
+                      <md-field>
+                        <label>Rebalance Every</label>
+                        <md-input v-model="rebalancePeriod" type="number"></md-input>
+                      </md-field>
+                    </div>
+                    <div class="md-layout-item">
+                      <md-field>
+                        <label for="rebalanceEvery">Period</label>
+                        <md-select
+                          v-model="rebalanceEvery"
+                          name="rebalanceEvery"
+                          id="rebalanceEvery"
+                        >
+                          <md-option value="hour">Hours</md-option>
+                          <md-option value="day">Days</md-option>
+                          <md-option value="week">Weeks</md-option>
+                          <md-option value="month">Months</md-option>
+                        </md-select>
+                      </md-field>
+                    </div>
+                  </div>
+                </md-card>
               </div>
               <div class="md-layout-item">
-                <div class="md-layout md-gutter">
-                  <div class="md-layout-item">
-                    <md-field>
-                      <label>Rebalance Every</label>
-                      <md-input v-model="rebalancePeriod" type="number"></md-input>
-                    </md-field>
+                <md-card style="padding:20px;">
+                  <h3>Set your first contribution amount!</h3>
+                  <p>This will be traded to achieve your desired portfolio. You can add more or remove funds later.</p>
+                  <div class="md-layout md-gutter">
+                    <div class="md-layout-item">
+                      <md-field>
+                        <label>Enter number</label>
+                        <md-input v-model="startingEther" type="number"></md-input>
+                      </md-field>
+                    </div>
+                    <div class="md-layout-item md-size-20">Eth</div>
                   </div>
-                  <div class="md-layout-item">
-                    <md-field>
-                      <label for="rebalanceEvery">Period</label>
-                      <md-select v-model="rebalanceEvery" name="rebalanceEvery" id="rebalanceEvery">
-                        <md-option value="hour">Hours</md-option>
-                        <md-option value="day">Days</md-option>
-                        <md-option value="week">Weeks</md-option>
-                        <md-option value="month">Months</md-option>
-                      </md-select>
-                    </md-field>
-                  </div>
-                </div>
+                </md-card>
               </div>
+            </div>
+
+            <div class="md-layout">
+              <div class="md-layout-item">
+                <md-card style="padding:20px;  margin-top:20px">
+                  <h3>Name your Snapfund!</h3>
+                  <p>You’ll get a sweet ENS domain, so make it catchy and at least 7 characters long.</p>
+                  <md-field>
+                    <label>Portfolio Name</label>
+                    <md-input v-model="portfolioName" maxlength="30"></md-input>
+                  </md-field>
+
+                  
+                  <md-button
+                    class="md-raised md-primary"
+                    @click="setDone('first', 'second')"
+                  >Continue</md-button>
+                  <md-button @click="started=false" class="md-secondary md-raised">Cancel</md-button>
+                </md-card>
+              </div>
+            </div>
+          </md-step>
+
+          <md-step id="second" md-label="Second Step" :md-done.sync="second">
+            <div>
               <div class="md-layout-item md-size-20 md-alignment-right">
                 <md-button @click="showSelectTokenModal" class="md-primary md-raised">
                   <md-icon>add</md-icon>Add Tokens
                 </md-button>
               </div>
-            </div>
+              <div v-if="selected.length > 0">
+                <div class="md-layout md-gutter md-alignment-top-center">
+                  <div class="md-layout-item">
+                    <h2>Select portfolio distribution</h2>
+                    <span
+                      class="md-caption"
+                    >Select the distribution of the diffrent assets to place within your portfolio.</span>
+                    <div v-for="token in selected">
+                      <div class="md-layout md-alignment-center-center md-gutter">
+                        <div class="md-layout-item md-size-10 md-layout md-alignment-center-center">
+                          <div class="md-layout-item">
+                            <cryptoicon
+                              :symbol="token.symbol.toLowerCase()"
+                              size="25"
+                              style="margin-top:5px; marin-right:15px"
+                            />
+                          </div>
+                          <div class="md-layout-item">
+                            <h4>{{token.symbol}}</h4>
+                          </div>
+                        </div>
+                        <div class="md-layout-item">
+                          <vue-slider
+                            v-model="token.ratio"
+                            v-bind="options"
+                            :dotOptions="{max: token.ratio + unselectedPercent}"
+                            :max="100"
+                            :tooltip="'always'"
+                          ></vue-slider>
+                        </div>
+                        <div class="md-layout-item md-size-5">
+                          <md-button
+                            class="md-icon-button md-raised md-accent"
+                            @click="removeToken(token)"
+                          >
+                            <md-icon>remove</md-icon>
+                          </md-button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="md-layout-item md-size-30">
+                    <h2>Visualize distribution</h2>
+                    <apexchart
+                      type="donut"
+                      width="400"
+                      :options="pieValues.options"
+                      :series="pieValues.values"
+                    />
+                  </div>
+                </div>
 
-            <hr>
-            <div class="md-layout md-gutter md-alignment-top-center">
-              <div class="md-layout-item">
-                <h2>Select portfolio distribution</h2>
-                <span
-                  class="md-caption"
-                >Select the distribution of the diffrent assets to place within your portfolio.</span>
-                <div v-for="token in selected">
-                  <div class="md-layout md-alignment-center-center md-gutter">
-                    <div class="md-layout-item md-size-10 md-layout md-alignment-center-center">
-                      <div class="md-layout-item">
-                        <cryptoicon
-                          :symbol="token.symbol.toLowerCase()"
-                          size="25"
-                          style="margin-top:5px; marin-right:15px"
-                        />
-                      </div>
-                      <div class="md-layout-item">
-                        <h4>{{token.symbol}}</h4>
-                      </div>
-                    </div>
-                    <div class="md-layout-item">
-                      <vue-slider
-                        v-model="token.ratio"
-                        v-bind="options"
-                        :dotOptions="{max: token.ratio + unselectedPercent}"
-                        :max="100"
-                        :tooltip="'always'"
-                      ></vue-slider>
-                    </div>
-                    <div class="md-layout-item md-size-5">
-                      <md-button
-                        class="md-icon-button md-raised md-accent"
-                        @click="removeToken(token)"
-                      >
-                        <md-icon>remove</md-icon>
-                      </md-button>
-                    </div>
+                <div
+                  class="md-layout md-gutter md-alignment-center-center"
+                  style="padding-bottom:20px"
+                >
+                  <div class="md-layout-item">
+                    <p>Unalocated: {{unselectedPercent}}</p>
+                  </div>
+                  <div class="md-layout-item md-size">
+                    <md-button
+                      :disabled="validPortfolio"
+                      class="md-raised md-primary"
+                    >Create Portfolio</md-button>
                   </div>
                 </div>
               </div>
-              <div class="md-layout-item md-size-30">
-                <h2>Visualize distribution</h2>
-                <apexchart
-                  type="donut"
-                  width="400"
-                  :options="pieValues.options"
-                  :series="pieValues.values"
-                />
+              <div>
+                <md-empty-state
+                  md-icon="account_balance"
+                  md-label="Create a new portfolio"
+                  md-description="Enter a portfolio name above and then start adding tokens. You can select the diffrent ratios for each and select a rebalance period."
+                  v-if="selected.length==0"
+                >
+                  <md-button @click="showSelectTokenModal" class="md-primary md-raised">Add Tokens</md-button>
+                </md-empty-state>
               </div>
             </div>
+          </md-step>
 
-            <div class="md-layout md-gutter md-alignment-center-center" style="padding-bottom:20px">
-              <div class="md-layout-item">
-                <p>Unalocated: {{unselectedPercent}}</p>
-              </div>
-              <div class="md-layout-item md-size">
-                <md-button :disabled="validPortfolio" class="md-raised md-primary">Create Portfolio</md-button>
-              </div>
-            </div>
-          </div>
-          <div>
-            <md-empty-state
-              md-icon="account_balance"
-              md-label="Create a new portfolio"
-              md-description="Enter a portfolio name above and then start adding tokens. You can select the diffrent ratios for each and select a rebalance period."
-              v-if="selected.length==0"
-            >
-              <md-button @click="showSelectTokenModal" class="md-primary md-raised">Add Tokens</md-button>
-            </md-empty-state>
-          </div>
-        </md-card>
+          <md-step id="third" md-label="Third Step" :md-done.sync="third">
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias doloribus eveniet quaerat modi cumque quos sed, temporibus nemo eius amet aliquid, illo minus blanditiis tempore, dolores voluptas dolore placeat nulla.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias doloribus eveniet quaerat modi cumque quos sed, temporibus nemo eius amet aliquid, illo minus blanditiis tempore, dolores voluptas dolore placeat nulla.</p>
+          </md-step>
+        </md-steppers>
       </div>
     </div>
 
@@ -186,9 +247,24 @@ export default {
     selected: [],
     portfolioName: "",
     rebalanceEvery: 0,
-    rebalancePeriod: ""
+    rebalancePeriod: "",
+    started: false,
+    startingEther: 0,
+    active: "first",
+    first: false,
+    second: false,
+    third: false
   }),
   methods: {
+    setDone(id, index) {
+      this[id] = true;
+
+      this.secondStepError = null;
+
+      if (index) {
+        this.active = index;
+      }
+    },
     showSelectTokenModal() {
       this.$modal.show("selectToken");
     },
