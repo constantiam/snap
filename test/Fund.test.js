@@ -93,7 +93,6 @@ contract("FundFactory", (accounts) => {
             { from: fundOwner }
         );
         let receivedFundDetails = await fund.getTokens();
-        console.log(receivedFundDetails);
         for (let index = 0; index < 3; index++) {
             assert.equal(
                 fundDetails.newTokenAddresses[index],

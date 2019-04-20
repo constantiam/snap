@@ -35,7 +35,8 @@ contract("FundFactory", (accounts) => {
             20,
             20,
             40
-        ]
+        ],
+        rebalancePeriod: 604800,
     };
 
     const eventSig = {
@@ -56,6 +57,7 @@ contract("FundFactory", (accounts) => {
         let fundReceipt = await fundFactory.createFund(
             fundDetails.tokenAddresses,
             fundDetails.tokenPercentages,
+            fundDetails.rebalancePeriod,
             { from: fundOwner }
         );
         let receivedFundOwner = fundReceipt.receipt.logs['0'].args['0'];
@@ -75,12 +77,14 @@ contract("FundFactory", (accounts) => {
         let fundReceipt = await fundFactory.createFund(
             fundDetails.tokenAddresses,
             fundDetails.tokenPercentages,
+            fundDetails.rebalancePeriod,
             { from: fundOwner }
         );
         let receivedFundAddress = fundReceipt.receipt.logs['0'].args['1'];
         let fundReceipt2 = await fundFactory.createFund(
             fundDetails.tokenAddresses,
             fundDetails.tokenPercentages,
+            fundDetails.rebalancePeriod,
             { from: fundOwner }
         );
         fund = await Fund.at(receivedFundAddress);
@@ -101,6 +105,7 @@ contract("FundFactory", (accounts) => {
         await fundFactory.createFund(
             fundDetails.tokenAddresses,
             fundDetails.tokenPercentages,
+            fundDetails.rebalancePeriod,
             { from: fundOwner }
         );
         let allFunds = await fundFactory.getAllFundUids();
@@ -111,6 +116,7 @@ contract("FundFactory", (accounts) => {
         let fundReceipt = await fundFactory.createFund(
             fundDetails.tokenAddresses,
             fundDetails.tokenPercentages,
+            fundDetails.rebalancePeriod,
             { from: fundOwner }
         );
         let receivedFundOwner = fundReceipt.receipt.logs['0'].args['0'];
