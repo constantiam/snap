@@ -98,13 +98,21 @@ contract Fund is IFund {
     {
         return _rebalancePeriod;
     }
-//TODO make all arrays 100 length 
+
     function getLastRebalance()
         public
         view
         returns(uint256)
     {
         return _lastRebalance;
+    }
+
+    function getNextRebalance()
+        public
+        view
+        returns(uint256)
+    {
+        return _lastRebalance + _rebalancePeriod;
     }
 
     function getBalanceOfToken(uint256 _tokenPosition) 
@@ -138,15 +146,12 @@ contract Fund is IFund {
         uint8[] memory _percentages
     ) 
         public
-        // notDisabled()
+        notDisabled()
         isAdmin()
     {
         _tokens = _tokenAddresses;
         _distribution = _percentages;
-        for(uint8 i = 0; i < _tokens.length - 1; i++) {
-            uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-            // IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
-        } 
+        manualRebalance();
         //TODO call the rebalance function and forward all eth
         _lastRebalance = now;
     }
@@ -158,20 +163,22 @@ contract Fund is IFund {
         require(_lastRebalance + _rebalancePeriod < now, "Rebalance period has not passed");
         for(uint i = 0; i < _tokens.length; i++) {
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-            IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
+            IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
         } 
+        //TODO make all arrays 100 length 
         //TODO: Call rebalancer with all eth
     }
 
     function manualRebalance()
         public
         notDisabled()
-        isOwner()
+        isAdmin()
     {
         for(uint i = 0; i < _tokens.length; i++) {
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-            // IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
+            IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
         } 
+        //TODO make all arrays 100 length 
         //TODO: Call rebalancer with all eth
     }
 
@@ -182,9 +189,9 @@ contract Fund is IFund {
         //TODO: send all tokens to owner
         for(uint i = 0; i < _tokens.length; i++) {
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-            // IERC20(_tokens[i]).transfer(_owner, balance);
-            // uint256 balanceAfter = IERC20(_tokens[i]).balanceOf(address(this));
-            // require(balanceAfter == 0, "Sending funds failed");
+            IERC20(_tokens[i]).transfer(_owner, balance);
+            uint256 balanceAfter = IERC20(_tokens[i]).balanceOf(address(this));
+            require(balanceAfter == 0, "Sending funds failed");
         } 
         //TODO: send remaining eth
         emit FundDeath(_owner);

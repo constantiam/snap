@@ -13,6 +13,7 @@ const {
     increaseTimeTo,
     duration
 } = require('./helpers/increaseTime');
+const latestTime = require("./helpers/latestTime");
 const _ = require("lodash");
 const BigNumber = web3.BigNumber;
 
@@ -89,8 +90,8 @@ contract("Fund", (accounts) => {
         await erc20Two.mint(fund.address, 1000);
         await erc20Three.mint(fund.address, 10000);
         await erc20Four.mint(fund.address, 3000);
-        //TODO: create tokens to interact with 
-        //TODO: check buying and selling works? maybe in a sep test
+        let balance = await erc20One.balanceOf(fund.address);
+        assert.equal(balance.toNumber(), 100, "Balance not set");
     });
 
     it("Fund created correctly", async () => {
@@ -149,10 +150,29 @@ contract("Fund", (accounts) => {
 
     
     it("Rebalance check", async () => {
-        await assertRevert(fund.rebalance( { from: fundOwner } ), EVMRevert);
-        // await increaseTimeTo(fundDetails.rebalancePeriod + 100);
-        // let receipt = await fund.rebalance( { from: fundOwner } );
-        // console.log(receipt);
+        let receipt = await fundFactory.createFund(
+            fundDetails.newTokenAddresses,
+            fundDetails.newTokenPercentages,
+            fundDetails.rebalancePeriod,
+            { from: fundOwner }
+        )
+        let receivedFundAddress = receipt.receipt.logs['0'].args['1'];
+        fund = await Fund.at(receivedFundAddress);
+        let ethReserve = web3.utils.toWei("10", 'ether')
+        await fund.init( { from: fundOwner, value: ethReserve } );
+        let lastRebalance = await fund.getLastRebalance();
+        let nextRebalance = await fund.getNextRebalance();
+        let result = nextRebalance - lastRebalance
+        assert.notEqual(
+            lastRebalance.toNumber(), 
+            nextRebalance.toNumber(), 
+            "Rebalance amounts not correct"
+        );
+        assert.equal(
+            result,
+            fundDetails.rebalancePeriod,
+            "Rebalance period does not match"
+        );
     });
 
     
@@ -165,8 +185,24 @@ contract("Fund", (accounts) => {
     });
 
     it("When fund is created rebalance happens", async () => {
-        //TODO: check that the rebalance time is set to now
-        //TODO: check rebalance happens
+        
         //TODO: check tokens get bought 
+    });
+
+    it("Check kill fund moves tokens", async () => {
+        await fund.killFund( { from: fundOwner } );
+        let balance1 = await erc20One.balanceOf(fund.address);
+        let balance2 = await erc20Two.balanceOf(fund.address);
+        let balance3 = await erc20Three.balanceOf(fund.address);
+        let balance4 = await erc20Four.balanceOf(fund.address);
+        assert.equal(balance1.toNumber(), 0, "Fund is not drained");
+        assert.equal(balance2.toNumber(), 0, "Fund is not drained");
+        assert.equal(balance3.toNumber(), 0, "Fund is not drained");
+        assert.equal(balance4.toNumber(), 0, "Fund is not drained");
+        await assertRevert(fund.addTokens(
+            fundDetails.tokenAddresses,
+            fundDetails.tokenPercentages,
+            { from: fundOwner }
+        ), EVMRevert);
     });
 });
