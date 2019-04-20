@@ -1,5 +1,7 @@
 #each component of the fund has a token address and the desirned weighting
 
+
+
 contract Factory():
   def getExchange(token_addr: address) -> address: constant
 
@@ -10,6 +12,7 @@ contract Exchange():
   def ethToTokenSwapOutput(tokens_bought: uint256, deadline: timestamp) -> uint256(wei): modifying
   def tokenToEthSwapInput(tokens_sold: uint256, min_eth: uint256(wei), deadline: timestamp) -> uint256(wei): modifying
   def tokenToEthTransferInput(tokens_sold: uint256, min_eth: uint256(wei), deadline: timestamp, recipient: address) -> uint256(wei): modifying
+
 
 Payment: event()
 
@@ -52,11 +55,32 @@ def getTokenValueInWallet(_tokenAddress: address, _wallet: address) -> uint256:
   tokenPrice: uint256 = self.getTokenPrice(_tokenAddress)
   return (numberOfTokens * tokenPrice) / 10**18
 
+
+@private
+def executeRebalanceSellTrades(_tradeValues: uint256[100], _tradeExchanges: address[100], _numberOfTrades: int128) -> bool:
+# self.exchange.tokenToEthSwapInput(requiredTradeValue, minimum, block.timestamp + 10)
+  minimum: uint256(wei) = 1 #improve this to be the minimum amount of the trade expected
+  for i in range(0,100):
+    if i == _numberOfTrades:
+      break
+    self.exchange = _tradeExchanges[i]
+    # self.exchange.tokenToEthSwapInput(_tradeValues[i], minimum, block.timestamp + 10)
+  return True
+
 @payable
 @public
-def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _numberOfTokens: int128) -> uint256(wei):
+def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _numberOfTokens: int128):
   totalFundValue: uint256 = self.getWalletValue(_tokenAddress, _numberOfTokens, self)
   # return totalFundValue
+  buyOrdersValues: uint256[100]
+  buyOrdersExchanges: address[100]
+  buyOrderCount: int128 = 0
+
+  
+  sellOrdersValues: uint256[100]
+  sellOrdersExchanges: address[100]
+  sellOrderCount: int128 = 0
+  
   for i in range(0,100):
     if i == _numberOfTokens:
       break  
@@ -66,23 +90,33 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _number
     deltaRatio: decimal = convert(_weightings[i], decimal)/100.0 - currentRatio
     requiredTradeInEth: decimal = (convert(totalFundValue,decimal) * deltaRatio)
     requiredTredeInToken: decimal = (requiredTradeInEth * convert(10**18,decimal)) / convert(tokenPrice, decimal)
+    
+    exchange_addr: address = self.uniswapFactory.getExchange(_tokenAddress[i])
     #we only want to do the sell orders now (if we are exiting a position) and will do the buys
     #after with the ether gained 
-    
-    
     if requiredTredeInToken < 0.0:
       requiredTradeValue: uint256 = convert(floor(as_unitless_number(requiredTredeInToken*-1.0)),uint256)
-      # return requiredTradeValue
-      minimum: uint256(wei) = 1 #improve this to be the minimum amount of the trade expected
-      return self.exchange.tokenToEthSwapInput(requiredTradeValue, minimum, block.timestamp + 10)
       
+      sellOrdersValues[sellOrderCount] = requiredTradeValue
+      sellOrdersExchanges[sellOrderCount] = exchange_addr
+      sellOrderCount = sellOrderCount + 1
+      minimum: uint256(wei) = 1 #improve this to be the minimum amount of the trade expected
+      # self.exchange.tokenToEthSwapInput(requiredTradeValue, minimum, block.timestamp + 10)
+    if requiredTredeInToken > 0.0:
+      requiredTradeValue: uint256 = convert(floor(as_unitless_number(requiredTredeInToken)),uint256)
+      buyOrdersValues[buyOrderCount] = requiredTradeValue
+      buyOrdersExchanges[buyOrderCount] = exchange_addr
+      buyOrderCount = buyOrderCount + 1
 
-    # return floor(requiredTredeInToken)
+    
+      # self.exchange = buyOrders[j].exchange_addr
+      # self.exchange.ethToTokenSwapOutput(buyOrders[j].requiredTradeValue, block.timestamp + 10, value = self.balance)
+    
 
     # self.token.
     # tokenRatio: uint256 = 
   
-  return 10
+  # return 10
   # return self.exchange.ethToTokenTransferOutput(_tokens, block.timestamp + 10, msg.sender, value = msg.value)
   
   # self.token.approve(exchange_addr, _tokens)
