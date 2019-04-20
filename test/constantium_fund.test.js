@@ -40,7 +40,7 @@ contract("Rebalancer", (accounts) => {
 
     before(async function () {
         //start by creating a template contract
-        let uniswapExchangeTemplate = await UniSwapExchange.new({
+        uniswapExchangeTemplate = await UniSwapExchange.new({
             from: uniSwapOwner
         })
         //then make the factory
@@ -52,7 +52,7 @@ contract("Rebalancer", (accounts) => {
             from: uniSwapOwner
         })
         //next, we need a token for our uniswap exchange. make a fake dai contract
-        let erc20Token = await ERC20Token.new(
+        erc20Token = await ERC20Token.new(
             web3.utils.toHex("Dai Mock"),
             web3.utils.toHex("DAI"),
             18,
@@ -100,35 +100,43 @@ contract("Rebalancer", (accounts) => {
         console.log("Eth price in dai")
         console.log(currentEthPrice.toString())
 
-
-
-
-        //do a swap where we are going to ADD (INPUT) 20000 dai.
-        await uniswapExchange.tokenToEthSwapInput(web3.utils.toWei("20000", 'ether'), 1, deadline, {
-            from: tokenOwner
-        })
-
-        ethBalance = await web3.eth.getBalance(uniswapExchange.address)
-        console.log("ETH BAL")
-        console.log(ethBalance.toString())
-
-        tokenBalance = await erc20Token.balanceOf(uniswapExchange.address)
-        console.log("dai ba")
-        console.log(tokenBalance.toString())
-
-        currentEthPrice = tokenBalance / ethBalance
-
-        console.log("Eth price in dai")
-        console.log(currentEthPrice.toString())
-
         rebalancer = await Rebalancer.new(uniswapFactory.address, {
             from: owner
         });
 
-        console.log("GETTING PRICE")
-        let contractPrice = await rebalancer.getTokenPrice.call(erc20Token.address)
-        console.log(contractPrice.toString())
-        
+
+        // //do a swap where we are going to ADD (INPUT) 20000 dai.
+        // await uniswapExchange.tokenToEthSwapInput(web3.utils.toWei("20000", 'ether'), 1, deadline, {
+        //     from: tokenOwner
+        // })
+
+        // ethBalance = await web3.eth.getBalance(uniswapExchange.address)
+        // console.log("ETH BAL")
+        // console.log(ethBalance.toString())
+
+        // tokenBalance = await erc20Token.balanceOf(uniswapExchange.address)
+        // console.log("dai ba")
+        // console.log(tokenBalance.toString())
+
+        // currentEthPrice = tokenBalance / ethBalance
+
+        // console.log("Eth price in dai")
+        // console.log(currentEthPrice.toString())
+
+
+
+        // console.log("GETTING PRICE")
+        // let contractPrice = await rebalancer.getTokenPriceUint.call(erc20Token.address)
+        // console.log(contractPrice.toString())
+
+        // console.log("getting value")
+        // let array = erc20Token.address
+        // let fundValue = await rebalancer.getFundValue.call([erc20Token.address], 1, {
+        //     from: tokenOwner
+        // })
+        // console.log(fundValue.toString())
+
+
         // tokenBalance = await erc20Token.balanceOf(rebalancer.address)
         // console.log("~dai ba")
         // console.log(tokenBalance.toString())
@@ -144,7 +152,7 @@ contract("Rebalancer", (accounts) => {
         //     from: randomAddress,
         //     value: web3.utils.toWei("1", 'ether')
         // })
-        
+
         // // console.log("VA")
         // // console.log(valueWeiToSend.toString())
 
@@ -158,7 +166,7 @@ contract("Rebalancer", (accounts) => {
 
 
     })
-    describe("Initial Fund Setup", function () {
+    describe("Rebalancer", function () {
         context("Configuration", function () {
             it("should correctly deploy and set owner", async () => {
                 let assignedOwner = await rebalancer.owner()
@@ -166,25 +174,27 @@ contract("Rebalancer", (accounts) => {
             });
             it("should correctly set uniswap factory", async () => {
                 let rebalancerFactory = await rebalancer.uniswapFactory()
-                assert.equal(rebalancerFactory, uniswapFactory.address, "did not correctly assign owner");
+                assert.equal(rebalancerFactory, uniswapFactory.address, "did not correctly assign uniswap factory");
             });
-
-
-            // it("should correctly allow rebalancing period to be set", async () => {
-            //     await fund.setRebalancePeriod(weekDuration, {
-            //         from: owner
-            //     })
-            //     let rebalancePeriod = await fund.rebalancePeriod()
-            //     assert.equal(rebalancePeriod, weekDuration, "did not set the new rebalance period");
-
-            //     // check that changing the duration reverts if not owner
-            //     await assertRevert(
-            //         fund.setRebalancePeriod(weekDuration + 1, {
-            //             from: randomAddress
-            //         })
-            //     )
-            //     assert.equal(rebalancePeriod, weekDuration, "did not revert invalid change of rebalance period");
-            // });
+        })
+        context("Evaluation Functions", function () {
+            it("should correctly calculate the eth price based on balances of uniswap exchange", async () => {
+                let contractPrice = await rebalancer.getTokenPriceUint.call(erc20Token.address)
+                //starting values of uniswap should make the starting price 1/100th of an eth = 10000000000000000 wei. 
+                //could not get .should.be.bignumber.equal to work so will hard code it for now....
+                assert.equal(contractPrice.toString(), '10000000000000000', "did not correctly calculate price");
+            })
+            it("should correctly calculate the value of a fund of tokens", async () => {
+                //send the randomAddress 100 tokens of dai, values at 1/100 eth per dai. 
+                await erc20Token.transfer(randomAddress, web3.utils.toWei("100", 'ether'), {
+                    from: tokenOwner
+                })
+                //the balance of this position should be 1 eth @ 1/100dai per eth
+                let walletValue = await rebalancer.getFundValue.call([erc20Token.address], 1, {
+                    from: randomAddress
+                })
+                assert.equal(walletValue.toString(), '1000000000000000000', "did not correctly calculate wallet value");
+            })
         })
     })
 });

@@ -52,16 +52,38 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: uint256[100], _numbe
   # return True
 
 @public
-def getTokenPrice(_tokenAddress: address) -> uint256(wei):
+def getTokenPrice(_tokenAddress: address) -> decimal:
   self.token = _tokenAddress
   exchange_addr: address = self.uniswapFactory.getExchange(_tokenAddress)
   self.exchange = exchange_addr
   exchangeTokenBalance: uint256 = self.token.balanceOf(exchange_addr)
-  exchangeTokenBalanceDecimal: decimal = decimal(exchangeTokenBalance,'wei')
+  exchangeTokenBalanceDecimal: decimal = convert(exchangeTokenBalance, decimal)
   exchangeEtherBalance: uint256(wei) = exchange_addr.balance
-  # exchangeEtherBalanceDecimal: decimal = convert(exchangeEtherBalance, decimal)
-  currentTokenPrice: uint256(wei) = as_wei_value(exchangeTokenBalanceDecimal / exchangeEtherBalance, 'wei')
-  return currentTokenPrice
+  exchangeEtherBalanceUint: uint256 = as_unitless_number(exchangeEtherBalance)
+  exchangeEtherBalanceDecimal: decimal = convert(exchangeEtherBalanceUint, decimal)
+  return exchangeEtherBalanceDecimal / exchangeTokenBalanceDecimal
+
+@public
+def getTokenPriceUint(_tokenAddress: address) -> uint256:
+  self.token = _tokenAddress
+  exchange_addr: address = self.uniswapFactory.getExchange(_tokenAddress)
+  self.exchange = exchange_addr
+  exchangeTokenBalance: uint256 = self.token.balanceOf(exchange_addr)
+  exchangeEtherBalance: uint256(wei) = exchange_addr.balance
+  exchangeEtherBalanceUint: uint256 = as_unitless_number(exchangeEtherBalance)
+  return (exchangeEtherBalanceUint*10**18) / exchangeTokenBalance
+  
+@public
+def getFundValue(_tokenAddress: address[1], _numberOfTokens: int128) -> uint256:
+  totalFundValue: uint256
+  for i in range(0,100):
+    if i == _numberOfTokens:
+      break
+    self.token = _tokenAddress[i]
+    tokenPrice: uint256 = self.getTokenPriceUint(_tokenAddress[i])
+    numberOfTokens: uint256 = self.token.balanceOf(msg.sender)
+    totalFundValue += tokenPrice * numberOfTokens
+  return totalFundValue / 10**18
 
 @public
 @payable
