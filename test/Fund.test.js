@@ -35,7 +35,17 @@ contract("FundFactory", (accounts) => {
             20,
             20,
             40
-        ]
+        ],
+        newTokenAddresses: [
+            '0x9B913956036a3462330B0642B20D3879ce68b450',
+            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36',
+            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36'
+        ],
+        newTokenPercentages: [
+            30,
+            30,
+            40
+        ],
     };
 
     const eventSig = {
@@ -60,12 +70,42 @@ contract("FundFactory", (accounts) => {
     });
 
     it("Fund created correctly", async () => {
-        
+        let receivedFundDetails = await fund.getTokens();
+        for (let index = 0; index < 4; index++) {
+            assert.equal(
+                fundDetails.tokenAddresses[index],
+                receivedFundDetails[0][index],
+                "Fund token addresses incorrect"
+            );
+            assert.equal(
+                fundDetails.tokenPercentages[index],
+                receivedFundDetails[1][index].toNumber(),
+                "Fund token addresses incorrect"
+            );
+        }
     });
 
     
-    it("", async () => {
-
+    it("Checking the add tokens functionality works", async () => {
+        await fund.addTokens(
+            fundDetails.newTokenAddresses,
+            fundDetails.newTokenPercentages,
+            { from: fundOwner }
+        );
+        let receivedFundDetails = await fund.getTokens();
+        console.log(receivedFundDetails);
+        for (let index = 0; index < 3; index++) {
+            assert.equal(
+                fundDetails.newTokenAddresses[index],
+                receivedFundDetails[0][index],
+                "Fund token addresses incorrect"
+            );
+            assert.equal(
+                fundDetails.newTokenPercentages[index],
+                receivedFundDetails[1][index].toNumber(),
+                "Fund token addresses incorrect"
+            );
+        }
     });
 
     

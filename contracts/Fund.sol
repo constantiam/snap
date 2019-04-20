@@ -1,6 +1,8 @@
 pragma solidity 0.5.0;
 
 import "./IFund.sol";
+import "./FundFactory.sol";
+import "./IERC20.sol";
 
 contract Fund is IFund {
     address private _owner;
@@ -40,7 +42,13 @@ contract Fund is IFund {
         return _owner;
     }
 
-    // function getTokens
+    function getTokens()
+        public
+        view
+        returns(address[] memory, uint8[] memory)
+    {
+        return(_tokens, _distribution);
+    }
 
     function addTokens(
         address[] memory _tokenAddresses, 
@@ -51,6 +59,13 @@ contract Fund is IFund {
     {
         _tokens = _tokenAddresses;
         _distribution = _percentages;
+        for(uint i = 0; i < _tokens.length; i++) {
+            uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
+            IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
+        } 
+        
+        //TODO for loop approving the rebalancer to spend tokens
+        //TODO call the rebalance function
         /**
         for(uint i = 0; i < allUsers.length; i++) {
             if(allUsers[i] == _addressToCheck) {
@@ -58,8 +73,6 @@ contract Fund is IFund {
                 break;
             }
         } */
-        //TODO for loop approving the rebalancer to spend tokens
-        //TODO call the rebalance function
     }
 
     function rebalance()

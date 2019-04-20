@@ -5,6 +5,7 @@ import "./IFund.sol";
 
 contract FundFactory {
     address private _owner;
+    address private _rebalancer;
     //Starts at one becuse mapping of owner to fund will default to 0
     uint256 private _fundNonce = 1;
     struct AFund {
@@ -55,6 +56,21 @@ contract FundFactory {
         returns(address)
     {
         return(_owner);
+    }
+
+    function getRebabalncer()
+        public
+        view
+        returns(address)
+    {
+        return _rebalancer;
+    }
+
+    function updateRebalancer(address _newRebalancer) 
+        public
+    {
+        require(msg.sender == _owner, "Access Denied");
+        _rebalancer = _newRebalancer;
     }
 
     function createFund(
