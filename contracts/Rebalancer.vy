@@ -45,7 +45,7 @@ def getTokenPriceUint(_tokenAddress: address) -> uint256:
   exchangeEtherBalance: uint256(wei) = exchange_addr.balance
   exchangeEtherBalanceUint: uint256 = as_unitless_number(exchangeEtherBalance)
   return (exchangeEtherBalanceUint*10**18) / exchangeTokenBalance
-  
+    
 @public
 def getWalletValue(_tokenAddress: address[100], _numberOfTokens: int128) -> uint256:
   totalWalletValue: uint256
@@ -58,7 +58,12 @@ def getWalletValue(_tokenAddress: address[100], _numberOfTokens: int128) -> uint
     totalWalletValue += tokenPrice * numberOfTokens
   return totalWalletValue / 10**18
 
-
+@public
+def getTokenValueInWallet(_tokenAddress: address) -> uint256:
+  self.token = _tokenAddress
+  numberOfTokens: uint256 = self.token.balanceOf(msg.sender)
+  tokenPrice: uint256 = self.getTokenPriceUint(_tokenAddress)
+  return (numberOfTokens * tokenPrice) / 10**18
 
 @payable
 @public
@@ -67,16 +72,9 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: uint256[100], _numbe
   for i in range(0,100):
     if i == _numberOfTokens:
       break
-    self.token = _tokenAddress[i]
-    exchange_addr: address = self.uniswapFactory.getExchange(_tokenAddress[i])
-    self.exchange = exchange_addr
-    exchangeTokenBalance: uint256 = self.token.balanceOf(exchange_addr)
-    exchangeTokenBalanceDecimal: uint256(wei) = as_wei_value(exchangeTokenBalance,'wei')
-    exchangeEtherBalance: uint256(wei) = exchange_addr.balance
-    # exchangeEtherBalanceDecimal: decimal = convert(exchangeEtherBalance, decimal)
-    currentTokenPrice: uint256(wei) = as_wei_value(exchangeTokenBalanceDecimal / exchangeEtherBalance,'wei')
-  
-    totalFundValue += self.token.balanceOf(msg.sender)
+    # self.token = _tokenAddress
+    # self.token.
+    # tokenRatio: uint256 = 
   
   return 10
   # return self.exchange.ethToTokenTransferOutput(_tokens, block.timestamp + 10, msg.sender, value = msg.value)

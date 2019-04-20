@@ -236,14 +236,32 @@ contract("Rebalancer", (accounts) => {
                 await daiTokenContract.transfer(randomAddress, web3.utils.toWei("100", 'ether'), {
                     from: tokenOwner
                 })
+
+                await mkrTokenContract.transfer(randomAddress, web3.utils.toWei("1", 'ether'), {
+                    from: tokenOwner
+                })
                 tokenArray = Array(100).fill(null).map((u, i) => '0x0000000000000000000000000000000000000000')
                 tokenArray[0] = daiTokenContract.address
+                tokenArray[1] = mkrTokenContract.address
                 //the balance of this position should be 1 eth @ 1/100dai per eth
-                let walletValue = await rebalancer.getWalletValue.call(tokenArray, 1, {
+                let walletValue = await rebalancer.getWalletValue.call(tokenArray, 2, {
                     from: randomAddress
                 })
-                assert.equal(walletValue.toString(), '1000000000000000000', "did not correctly calculate wallet value");
+                //value of position should be 1 eth worth of dai and 5 eth worth of mkr
+                assert.equal(walletValue.toString(), '6000000000000000000', "did not correctly calculate wallet value");
             })
+            it("should correctly calculate the value of assets in wallet", async () => {
+                await daiTokenContract.transfer(randomAddress, web3.utils.toWei("100", 'ether'), {
+                    from: tokenOwner
+                })
+
+                let tokenInWalletValue = await rebalancer.getTokenValueInWallet.call(daiTokenContract.address, {
+                    from: randomAddress
+                })
+                //should be 2 eth worth of dai given the 100 dai sent in previous test and 100 sent now
+                assert.equal(tokenInWalletValue.toString(), '2000000000000000000', "did not correctly calculate wallet token");
+            })
+            it("should correctly calculate the ratio of assets in wallet", async () => {})
         })
     })
 });
