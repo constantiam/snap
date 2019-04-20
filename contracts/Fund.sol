@@ -13,7 +13,7 @@ import "./IERC20.sol";
     re-balance the fund.
 */
 contract Fund is IFund {
-    address private _owner;
+    address payable _owner;
     address private _factory;
     address[] private _tokens;
     uint8[] private _distribution;
@@ -45,7 +45,7 @@ contract Fund is IFund {
     constructor(
         address[] memory _tokenAddresses, 
         uint8[] memory _percentages, 
-        address _fundOwner,
+        address payable _fundOwner,
         uint256 _rebalance
     ) 
         public
@@ -186,23 +186,16 @@ contract Fund is IFund {
         public
         isAdmin()
     {
-        //TODO: send all tokens to owner
         for(uint i = 0; i < _tokens.length; i++) {
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
             IERC20(_tokens[i]).transfer(_owner, balance);
             uint256 balanceAfter = IERC20(_tokens[i]).balanceOf(address(this));
             require(balanceAfter == 0, "Sending funds failed");
         } 
-        //TODO: send remaining eth
+        uint256 amount = address(this).balance;
+        _owner.transfer(amount);
         emit FundDeath(_owner);
         _disabled = !_disabled;
-        /**
-            TypeError: Invalid type for argument in function call. 
-            Invalid implicit conversion from address to address 
-            payable requested. 
-        
-        selfdestruct(_owner);
-        */
     }
 
     function() 

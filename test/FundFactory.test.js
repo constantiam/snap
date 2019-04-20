@@ -48,7 +48,6 @@ contract("FundFactory", (accounts) => {
         CreatedFund: "CreatedFund(address,address,uint256)"
     }
 
-
     before(async function () {
         erc20One = await Erc20.new({ from: tokenCreator });
         erc20Two = await Erc20.new({ from: tokenCreator });
@@ -118,8 +117,8 @@ contract("FundFactory", (accounts) => {
         let allEvents = killReceipt.receipt.logs.map(e => {
             return e.event;
         });//[ 'AllFundsDeath', 'AllFundsDeath', 'AllFundsDeath' ]
-        let allFunds = await fundFactory.getAllFundUids();
-        //TODO: implement selfdestruct and test contracts dont exist
+        // console.log();
+        
     });
 
     it("Deploying the rebalancer", async () => {
