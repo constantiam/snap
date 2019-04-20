@@ -165,7 +165,9 @@ def ethToTokenTransferInput(min_tokens: uint256, deadline: timestamp, recipient:
 
 @private
 def ethToTokenOutput(tokens_bought: uint256, max_eth: uint256(wei), deadline: timestamp, buyer: address, recipient: address) -> uint256(wei):
-    assert deadline >= block.timestamp and (tokens_bought > 0 and max_eth > 0)
+    assert deadline >= block.timestamp
+    assert tokens_bought > 0
+    assert max_eth > 0
     token_reserve: uint256 = self.token.balanceOf(self)
     eth_sold: uint256 = self.getOutputPrice(tokens_bought, as_unitless_number(self.balance - max_eth), token_reserve)
     # Throws if eth_sold > max_eth
