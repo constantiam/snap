@@ -75,7 +75,8 @@ contract FundFactory {
 
     function createFund(
         address[] memory _tokenAddresses,
-        uint8[] memory _percentages
+        uint8[] memory _percentages,
+        uint256 _rebalancePeriod
     )
         public
         payable
@@ -84,7 +85,8 @@ contract FundFactory {
         Fund fund = new Fund(
             _tokenAddresses,
             _percentages,
-            msg.sender
+            msg.sender,
+            _rebalancePeriod
         );
         uint256 fundUid = _fundNonce;
         allFunds[fundUid] = AFund({

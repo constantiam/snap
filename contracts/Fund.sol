@@ -37,7 +37,7 @@ contract Fund is IFund {
         address[] memory _tokenAddresses, 
         uint8[] memory _percentages, 
         address _fundOwner,
-        uint256 _rebalanceWait
+        uint256 _rebalance
     ) 
         public
         payable
@@ -48,6 +48,7 @@ contract Fund is IFund {
             _tokenAddresses,
             _percentages
         );
+        _rebalancePeriod = _rebalance;
     }
 
     /**
@@ -84,14 +85,13 @@ contract Fund is IFund {
     function setNewRebalancePeriod(uint256 _newPeriod)
         public
         isOwner()
-        returns(uint256)
     {
         _rebalancePeriod = _newPeriod;
     }
 
     /**
-        @param address[]: The array of token addresses.
-        @param uint8[]: The array of percentages as decimals.
+        param _tokenAddresses: The array of token addresses.
+        param _percentages: The array of percentages as decimals.
         @notice This function will overried all previously 
             listed tokens, so should you want to add or remove 
             a token, simply omit or add the address and decimal 
@@ -104,14 +104,14 @@ contract Fund is IFund {
         uint8[] memory _percentages
     ) 
         public
-        isOwner()
+        isAdmin()
     {
         _tokens = _tokenAddresses;
         _distribution = _percentages;
-        for(uint8 i = 0; i < _tokens.length; i++) {
-            uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-            IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
-        } 
+        // for(uint8 i = 0; i < _tokens.length; i++) {
+        //     uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
+        //     IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
+        // } 
 
         //TODO call the rebalance function and forward all eth
         _lastRebalance = now;
@@ -120,7 +120,7 @@ contract Fund is IFund {
     function rebalance()
         public
     {
-        require(_lastRebalance + _rebalancePeriod < now, "Rebalance period has not passed")
+        require(_lastRebalance + _rebalancePeriod < now, "Rebalance period has not passed");
         for(uint i = 0; i < _tokens.length; i++) {
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
             IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);

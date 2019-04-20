@@ -1,11 +1,18 @@
 //tests helpers
 const {
-    assertRevert
+    EVMRevert
+} = require('./helpers/EVMRevert');
+const { 
+    assertRevert 
 } = require('./helpers/assertRevert');
 const {
     sendTransaction
 } = require('./helpers/sendTransaction');
 const advanceBlock = require("./helpers/advanceToBlock");
+const {
+    increaseTimeTo,
+    duration
+} = require('./helpers/increaseTime');
 const _ = require("lodash");
 const BigNumber = web3.BigNumber;
 
@@ -63,11 +70,9 @@ contract("FundFactory", (accounts) => {
         let receivedFundOwner = fundReceipt.receipt.logs['0'].args['0'];
         let receivedFundAddress = fundReceipt.receipt.logs['0'].args['1'];
         let receivedFundUid = fundReceipt.receipt.logs['0'].args['2'];
-        
         assert.equal(fundOwner, receivedFundOwner, "Owner address is incorrect");
         assert.notEqual(receivedFundOwner, factoryOwner, "Fund owner address is factory");
         assert.equal(receivedFundUid.toNumber(), 1, "The funds UID is incorrect")
-
         fund = await Fund.at(receivedFundAddress);
         let receivedFundOwnerFund = await fund.getOwner();
         assert.equal(fundOwner, receivedFundOwnerFund, "Funds owner is incorrect");
