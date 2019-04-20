@@ -28,6 +28,7 @@ contract("Rebalancer", (accounts) => {
     const randomAddress = accounts[2]
     const uniSwapOwner = accounts[3]
     const tokenOwner = accounts[4]
+    const fundOwner = accounts[5]
 
     const weekDuration = 604800 //one week in seconds
     const monthDuration = 2628000000
@@ -232,36 +233,70 @@ contract("Rebalancer", (accounts) => {
                 assert.equal(contractPrice.toString(), '10000000000000000', "did not correctly calculate price");
             })
             it("should correctly calculate the value of a fund of tokens", async () => {
-                //send the randomAddress 100 tokens of dai, values at 1/100 eth per dai. 
-                await daiTokenContract.transfer(randomAddress, web3.utils.toWei("100", 'ether'), {
+                //send the fundOwner 100 tokens of dai, values at 1/100 eth per dai. 
+                await daiTokenContract.transfer(fundOwner, web3.utils.toWei("100", 'ether'), {
                     from: tokenOwner
                 })
 
-                await mkrTokenContract.transfer(randomAddress, web3.utils.toWei("1", 'ether'), {
+                await mkrTokenContract.transfer(fundOwner, web3.utils.toWei("1", 'ether'), {
                     from: tokenOwner
                 })
                 tokenArray = Array(100).fill(null).map((u, i) => '0x0000000000000000000000000000000000000000')
                 tokenArray[0] = daiTokenContract.address
                 tokenArray[1] = mkrTokenContract.address
                 //the balance of this position should be 1 eth @ 1/100dai per eth
-                let walletValue = await rebalancer.getWalletValue.call(tokenArray, 2, {
-                    from: randomAddress
+                let walletValue = await rebalancer.getWalletValue.call(tokenArray, 2, fundOwner, {
+                    from: fundOwner
                 })
+                console.log("Wallet value in ETH")
+                console.log(walletValue.toString())
                 //value of position should be 1 eth worth of dai and 5 eth worth of mkr
                 assert.equal(walletValue.toString(), '6000000000000000000', "did not correctly calculate wallet value");
             })
             it("should correctly calculate the value of assets in wallet", async () => {
-                await daiTokenContract.transfer(randomAddress, web3.utils.toWei("100", 'ether'), {
+                await daiTokenContract.transfer(fundOwner, web3.utils.toWei("100", 'ether'), {
                     from: tokenOwner
                 })
 
-                let tokenInWalletValue = await rebalancer.getTokenValueInWallet.call(daiTokenContract.address, {
-                    from: randomAddress
+                let tokenInWalletValue = await rebalancer.getTokenValueInWallet.call(daiTokenContract.address, fundOwner, {
+                    from: fundOwner
                 })
                 //should be 2 eth worth of dai given the 100 dai sent in previous test and 100 sent now
                 assert.equal(tokenInWalletValue.toString(), '2000000000000000000', "did not correctly calculate wallet token");
             })
-            it("should correctly calculate the ratio of assets in wallet", async () => {})
+            it("should correctly calculate the ratio of assets in wallet", async () => {
+                tokenArray = Array(100).fill(null).map((u, i) => '0x0000000000000000000000000000000000000000')
+                tokenArray[0] = daiTokenContract.address
+                tokenArray[1] = mkrTokenContract.address
+
+                weightingArray = Array(100).fill(null).map((u, i) => 0)
+                weightingArray[0] = 20
+                weightingArray[1] = 80
+
+                console.log(tokenArray)
+                console.log(weightingArray)
+
+                let walletValue = await rebalancer.getWalletValue.call(tokenArray, 2, fundOwner, {
+                    from: fundOwner
+                })
+
+                console.log("WALLET VALUE")
+                console.log(walletValue.toString())
+
+                let requiredRatio = await rebalancer.rebalanceFund.call(tokenArray, weightingArray, 2, {
+                    from: fundOwner
+                })
+
+                console.log("returned ratio")
+                console.log(requiredRatio.toString())
+
+
+                // let walletValue = await rebalancer.getWalletValue.call(tokenArray, 2, fundOwner, {
+                //     from: fundOwner
+                // })
+                // console.log("Wallet value in ETH")
+                // console.log(walletValue.toString())
+            })
         })
     })
 });

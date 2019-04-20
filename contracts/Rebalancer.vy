@@ -12,7 +12,6 @@ contract Exchange():
 
 Payment: event()
 
-
 owner: public(address)
 uniswapFactory: public(Factory)
 exchange: Exchange
@@ -47,32 +46,46 @@ def getTokenPriceUint(_tokenAddress: address) -> uint256:
   return (exchangeEtherBalanceUint*10**18) / exchangeTokenBalance
     
 @public
-def getWalletValue(_tokenAddress: address[100], _numberOfTokens: int128) -> uint256:
+def getWalletValue(_tokenAddress: address[100], _numberOfTokens: int128, _wallet: address) -> uint256:
   totalWalletValue: uint256
   for i in range(0,100):
     if i == _numberOfTokens:
       break
     self.token = _tokenAddress[i]
     tokenPrice: uint256 = self.getTokenPriceUint(_tokenAddress[i])
-    numberOfTokens: uint256 = self.token.balanceOf(msg.sender)
+    numberOfTokens: uint256 = self.token.balanceOf(_wallet)
     totalWalletValue += tokenPrice * numberOfTokens
   return totalWalletValue / 10**18
 
 @public
-def getTokenValueInWallet(_tokenAddress: address) -> uint256:
+def getTokenValueInWallet(_tokenAddress: address, _wallet: address) -> uint256:
   self.token = _tokenAddress
-  numberOfTokens: uint256 = self.token.balanceOf(msg.sender)
+  numberOfTokens: uint256 = self.token.balanceOf(_wallet)
   tokenPrice: uint256 = self.getTokenPriceUint(_tokenAddress)
   return (numberOfTokens * tokenPrice) / 10**18
 
 @payable
 @public
-def rebalanceFund(_tokenAddress: address[100], _weightings: uint256[100], _numberOfTokens: int128) -> uint256(wei):
-  totalFundValue: uint256 = self.getWalletValue(_tokenAddress, _numberOfTokens)
+def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _numberOfTokens: int128) -> int128:
+  totalFundValue: uint256 = self.getWalletValue(_tokenAddress, _numberOfTokens, msg.sender)
   for i in range(0,100):
     if i == _numberOfTokens:
       break
-    # self.token = _tokenAddress
+    # self.token = _tokenAddress[i]
+    # numberOfTokens: uint256 = self.token.balanceOf(msg.sender)
+    tokenValueInWallet: uint256 = self.getTokenValueInWallet(_tokenAddress[i], msg.sender)
+        
+    currentRatio: decimal = (convert(tokenValueInWallet,decimal) / convert(totalFundValue,decimal))
+    deltaRatio: decimal = convert(_weightings[i], decimal)/100.0 - currentRatio
+    requiredTrade: decimal = (convert(totalFundValue,decimal) * deltaRatio)
+
+    #we only want to do the sell orders now (if we are exiting a position) and will do the buys
+    #after with the ether gained 
+    
+
+
+    return floor(requiredTrade*10000.0)
+
     # self.token.
     # tokenRatio: uint256 = 
   
