@@ -86,7 +86,7 @@ contract Fund is IFund {
     function getTokens()
         public
         view
-        returns(address[] memory, uint8[] memory)
+        returns(address[100] memory, int128[100] memory)
     {
         return(_tokens, _distribution);
     }

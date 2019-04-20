@@ -34,15 +34,11 @@ contract("Fund", (accounts) => {
     const tokenCreator = accounts[2]
 
     const fundDetails = {
-        tokenAddresses: [
-        ],
-        tokenPercentages: [
-        ],
+        tokenAddresses: Array(100).fill(null).map((u, i) => '0x0000000000000000000000000000000000000000'),
+        tokenPercentages: Array(100).fill(null).map((u, i) => '0'),
         rebalancePeriod: 604800,
-        newTokenAddresses: [
-        ],
-        newTokenPercentages: [
-        ],
+        newTokenAddresses: Array(100).fill(null).map((u, i) => '0x0000000000000000000000000000000000000000'),
+        newTokenPercentages: Array(100).fill(null).map((u, i) => '0'),
     };
 
     const eventSig = {
@@ -54,33 +50,41 @@ contract("Fund", (accounts) => {
         erc20Two = await Erc20.new({ from: tokenCreator });
         erc20Three = await Erc20.new({ from: tokenCreator });
         erc20Four = await Erc20.new({ from: tokenCreator });
-        fundDetails.tokenAddresses[0] = erc20One.address;
-        fundDetails.newTokenAddresses[0] = erc20One.address;
-        fundDetails.tokenPercentages[0] = 30;
-        fundDetails.newTokenPercentages[0] = 20;
-        fundDetails.tokenAddresses[1] = erc20Two.address;
-        fundDetails.newTokenAddresses[1] = erc20Two.address;
-        fundDetails.tokenPercentages[1] = 30;
-        fundDetails.newTokenPercentages[1] = 30;
-        fundDetails.tokenAddresses[2] = erc20Three.address;
-        fundDetails.newTokenAddresses[2] = erc20Three.address;
-        fundDetails.tokenPercentages[2] = 40;
-        fundDetails.newTokenPercentages[2] = 40;
-        fundDetails.newTokenAddresses[3] = erc20Four.address;
-        fundDetails.newTokenPercentages[3] = 10;
+        fundDetails.tokenAddresses[1] = erc20One.address;
+        fundDetails.newTokenAddresses[1] = erc20One.address;
+        fundDetails.tokenAddresses[2] = erc20Two.address;
+        fundDetails.newTokenAddresses[2] = erc20Two.address;
+        fundDetails.tokenAddresses[3] = erc20Three.address;
+        fundDetails.newTokenAddresses[3] = erc20Three.address;
+        fundDetails.newTokenAddresses[4] = erc20Four.address;
 
+        fundDetails.tokenPercentages[0] = 20; 
+        fundDetails.newTokenPercentages[0] = 10;
+        fundDetails.tokenPercentages[1] = 20;
+        fundDetails.newTokenPercentages[1] = 30;
+        fundDetails.tokenPercentages[2] = 20;
+        fundDetails.newTokenPercentages[2] = 40;
+        fundDetails.tokenPercentages[3] = 40;
+        fundDetails.newTokenPercentages[3] = 10;
+        fundDetails.newTokenPercentages[4] = 10;
+        
         fundFactory = await FundFactory.new({ from: factoryOwner });
         await fundFactory.updateRebalancer( erc20Four.address, { from: factoryOwner });
+        // console.log(fundDetails.tokenAddresses);
+        // console.log(fundDetails.tokenPercentages);
         let fundReceipt = await fundFactory.createFund(
             fundDetails.tokenAddresses,
             fundDetails.tokenPercentages,
             fundDetails.rebalancePeriod,
             { from: fundOwner }
         );
+        console.log("0");
         let receivedFundOwner = fundReceipt.receipt.logs['0'].args['0'];
         let receivedFundAddress = fundReceipt.receipt.logs['0'].args['1'];
         let receivedFundUid = fundReceipt.receipt.logs['0'].args['2'];
+        console.log("0");
         fund = await Fund.at(receivedFundAddress);
+        console.log("0");
         let ethReserve = web3.utils.toWei("10", 'ether')
         await fund.init( { from: fundOwner, value: ethReserve } );
         assert.equal(receivedFundOwner, fundOwner, "Owner address incorrect");

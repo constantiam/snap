@@ -82,13 +82,13 @@ contract FundFactory {
     }
 
     function createFund(
-        address[] memory _tokenAddresses,
-        uint8[] memory _percentages,
+        address[100] memory _tokenAddresses,
+        int128[100] memory _percentages,
         uint256 _rebalancePeriod
     )
         public
         payable
-        returns(address, uint256)
+        // returns(address, uint256)
     {
         Fund fund = new Fund(
             _tokenAddresses,
@@ -96,17 +96,17 @@ contract FundFactory {
             msg.sender,
             _rebalancePeriod
         );
-        fund.init.value(msg.value)();
-        uint256 fundUid = _fundNonce;
-        allFunds[fundUid] = AFund({
-            uid: fundUid,
-            fundAddress: address(fund),
-            owner: msg.sender
-        });
-        fundOwner[msg.sender].push(fundUid);
-        _fundNonce = _fundNonce + 1;
-        emit CreatedFund(msg.sender, address(fund), fundUid);
-        return(address(fund), fundUid);
+        // fund.init.value(msg.value)();
+        // uint256 fundUid = _fundNonce;
+        // allFunds[fundUid] = AFund({
+        //     uid: fundUid,
+        //     fundAddress: address(fund),
+        //     owner: msg.sender
+        // });
+        // fundOwner[msg.sender].push(fundUid);
+        // _fundNonce = _fundNonce + 1;
+        // emit CreatedFund(msg.sender, address(fund), fundUid);
+        // return(address(fund), fundUid);
     }
 
     function killFunds()
