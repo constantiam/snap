@@ -84,13 +84,16 @@ contract("FundFactory", (accounts) => {
             { from: fundOwner }
         );
         fund = await Fund.at(receivedFundAddress);
-        let contractDeath = await fund.getContractDeath();
-        console.log(contractDeath);
         let killReceipt = await fundFactory.killFunds( { from: factoryOwner } );
-        console.log(killReceipt.receipt.logs);
+        let allEvents = killReceipt.receipt.logs.map(e => {
+            return e.event;
+        });//[ 'AllFundsDeath', 'AllFundsDeath', 'AllFundsDeath' ]
         let allFunds = await fundFactory.getAllFundUids();
-        console.log(allFunds);
-        let contractDeathAfter = await fund.getContractDeath();
-        console.log(contractDeathAfter);
+        //TODO: implement selfdestruct and test contracts dont exist
+    });
+
+    it("Deploying the rebalancer", async () => {
+        //TODO gets right uniswap address
+        //TODO is deployed
     });
 });

@@ -7,7 +7,6 @@ contract Fund is IFund {
     address private _factory;
     address[] private _tokens;
     uint8[] private _distribution;
-    bool private _dead = false;
 
     modifier isOwner() {
         require(msg.sender == _owner || msg.sender == _factory, "Access Denied");
@@ -37,14 +36,6 @@ contract Fund is IFund {
         returns(address)
     {
         return _owner;
-    }
-
-    function getContractDeath()
-        public
-        view
-        returns(bool)
-    {
-        return(_dead);
     }
 
     function addTokens(
@@ -85,7 +76,6 @@ contract Fund is IFund {
         // isOwner()
     {
         //TODO: send all tokens to owner
-        _dead = true;
         emit FundDeath(_owner);
         /**
             TypeError: Invalid type for argument in function call. 
