@@ -1,0 +1,35 @@
+html {
+    border-color: #A38D9E;
+}
+
+button {
+    background-color: #774C6C;
+    size: 150%;
+    color: white;
+    font-size: 20px;
+    padding: 10px 24px;
+}
+
+div {
+    font-family: Courier New;
+}
+
+
+.rc-slider-dot-active {
+    border-color: #774C6C !important;
+}
+
+.rc-slider * {
+    color: #774C6C;
+}
+
+.rc-slider-handle {
+    border: solid 2px #774C6C;
+    background-color: #774C6C;
+}
+
+.rc-slider-step {
+    border: solid 2px #774C6C;
+}
+
+
