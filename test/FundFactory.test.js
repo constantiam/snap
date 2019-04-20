@@ -15,6 +15,7 @@ const {
 } = require('./helpers/increaseTime');
 const _ = require("lodash");
 const BigNumber = web3.BigNumber;
+const Erc20 = artifacts.require("./ERC20.sol");
 
 //libraries
 require("chai")
@@ -29,21 +30,18 @@ const Fund = artifacts.require("./Fund.sol");
 contract("FundFactory", (accounts) => {
     const factoryOwner = accounts[0]
     const fundOwner = accounts[1]
+    const tokenCreator = accounts[2]
 
     const fundDetails = {
         tokenAddresses: [
-            '0x9B913956036a3462330B0642B20D3879ce68b450',
-            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36',
-            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36',
-            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36'
         ],
         tokenPercentages: [
-            20,
-            20,
-            20,
-            40
         ],
         rebalancePeriod: 604800,
+        newTokenAddresses: [
+        ],
+        newTokenPercentages: [
+        ],
     };
 
     const eventSig = {
@@ -52,7 +50,26 @@ contract("FundFactory", (accounts) => {
 
 
     before(async function () {
+        erc20One = await Erc20.new({ from: tokenCreator });
+        erc20Two = await Erc20.new({ from: tokenCreator });
+        erc20Three = await Erc20.new({ from: tokenCreator });
+        erc20Four = await Erc20.new({ from: tokenCreator });
+        fundDetails.tokenAddresses[0] = erc20One.address;
+        fundDetails.newTokenAddresses[0] = erc20One.address;
+        fundDetails.tokenPercentages[0] = 30;
+        fundDetails.newTokenPercentages[0] = 20;
+        fundDetails.tokenAddresses[1] = erc20Two.address;
+        fundDetails.newTokenAddresses[1] = erc20Two.address;
+        fundDetails.tokenPercentages[1] = 30;
+        fundDetails.newTokenPercentages[1] = 30;
+        fundDetails.tokenAddresses[2] = erc20Three.address;
+        fundDetails.newTokenAddresses[2] = erc20Three.address;
+        fundDetails.tokenPercentages[2] = 40;
+        fundDetails.newTokenPercentages[2] = 40;
+        fundDetails.newTokenAddresses[3] = erc20Four.address;
+        fundDetails.newTokenPercentages[3] = 10;
         fundFactory = await FundFactory.new({ from: factoryOwner });
+        await fundFactory.updateRebalancer( erc20Four.address, { from: factoryOwner });
     });
 
     it("Should deploy correctly and set owner", async () => {
@@ -74,6 +91,8 @@ contract("FundFactory", (accounts) => {
         assert.notEqual(receivedFundOwner, factoryOwner, "Fund owner address is factory");
         assert.equal(receivedFundUid.toNumber(), 1, "The funds UID is incorrect")
         fund = await Fund.at(receivedFundAddress);
+        let ethReserve = web3.utils.toWei("10", 'ether')
+        await fund.init( { from: fundOwner, value: ethReserve } );
         let receivedFundOwnerFund = await fund.getOwner();
         assert.equal(fundOwner, receivedFundOwnerFund, "Funds owner is incorrect");
     });
@@ -93,6 +112,8 @@ contract("FundFactory", (accounts) => {
             { from: fundOwner }
         );
         fund = await Fund.at(receivedFundAddress);
+        let ethReserve = web3.utils.toWei("10", 'ether')
+        await fund.init( { from: fundOwner, value: ethReserve } );
         let killReceipt = await fundFactory.killFunds( { from: factoryOwner } );
         let allEvents = killReceipt.receipt.logs.map(e => {
             return e.event;

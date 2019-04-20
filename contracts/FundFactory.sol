@@ -14,7 +14,7 @@ contract FundFactory {
         address owner;
     }
     mapping(uint256 => AFund) allFunds;
-    mapping(address => uint256) fundOwner;
+    mapping(address => uint256[]) fundOwner;
 
     event CreatedFund(address indexed owner, address indexed fund, uint256 indexed uid);
     event AllFundsDeath(address indexed owner, address indexed fund);
@@ -37,6 +37,14 @@ contract FundFactory {
         returns(uint256)
     {
         return _fundNonce - 1;
+    }
+
+    function getFundForOwner(address _fundOwner)
+        public
+        view
+        returns(uint256[] memory)
+    {
+        return fundOwner[_fundOwner];
     }
 
     function getFundDetails(uint256 _fundId)
@@ -88,13 +96,14 @@ contract FundFactory {
             msg.sender,
             _rebalancePeriod
         );
+        fund.init.value(msg.value)();
         uint256 fundUid = _fundNonce;
         allFunds[fundUid] = AFund({
             uid: fundUid,
             fundAddress: address(fund),
             owner: msg.sender
         });
-        fundOwner[msg.sender] = fundUid;
+        fundOwner[msg.sender].push(fundUid);
         _fundNonce = _fundNonce + 1;
         emit CreatedFund(msg.sender, address(fund), fundUid);
         return(address(fund), fundUid);

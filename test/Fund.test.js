@@ -25,34 +25,22 @@ require("chai")
 //contracts
 const FundFactory = artifacts.require("./FundFactory.sol");
 const Fund = artifacts.require("./Fund.sol");
+const Erc20 = artifacts.require("./ERC20.sol");
 
 contract("Fund", (accounts) => {
     const factoryOwner = accounts[0]
     const fundOwner = accounts[1]
+    const tokenCreator = accounts[2]
 
     const fundDetails = {
         tokenAddresses: [
-            '0x9B913956036a3462330B0642B20D3879ce68b450',
-            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36',
-            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36',
-            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36'
         ],
         tokenPercentages: [
-            20,
-            20,
-            20,
-            40
         ],
         rebalancePeriod: 604800,
         newTokenAddresses: [
-            '0x9B913956036a3462330B0642B20D3879ce68b450',
-            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36',
-            '0x93bB63aFe1E0180d0eF100D774B473034fd60C36'
         ],
         newTokenPercentages: [
-            30,
-            30,
-            40
         ],
     };
 
@@ -60,9 +48,28 @@ contract("Fund", (accounts) => {
         CreatedFund: "CreatedFund(address,address,uint256)"
     }
 
-
     before(async function () {
+        erc20One = await Erc20.new({ from: tokenCreator });
+        erc20Two = await Erc20.new({ from: tokenCreator });
+        erc20Three = await Erc20.new({ from: tokenCreator });
+        erc20Four = await Erc20.new({ from: tokenCreator });
+        fundDetails.tokenAddresses[0] = erc20One.address;
+        fundDetails.newTokenAddresses[0] = erc20One.address;
+        fundDetails.tokenPercentages[0] = 30;
+        fundDetails.newTokenPercentages[0] = 20;
+        fundDetails.tokenAddresses[1] = erc20Two.address;
+        fundDetails.newTokenAddresses[1] = erc20Two.address;
+        fundDetails.tokenPercentages[1] = 30;
+        fundDetails.newTokenPercentages[1] = 30;
+        fundDetails.tokenAddresses[2] = erc20Three.address;
+        fundDetails.newTokenAddresses[2] = erc20Three.address;
+        fundDetails.tokenPercentages[2] = 40;
+        fundDetails.newTokenPercentages[2] = 40;
+        fundDetails.newTokenAddresses[3] = erc20Four.address;
+        fundDetails.newTokenPercentages[3] = 10;
+
         fundFactory = await FundFactory.new({ from: factoryOwner });
+        await fundFactory.updateRebalancer( erc20Four.address, { from: factoryOwner });
         let fundReceipt = await fundFactory.createFund(
             fundDetails.tokenAddresses,
             fundDetails.tokenPercentages,
@@ -73,9 +80,17 @@ contract("Fund", (accounts) => {
         let receivedFundAddress = fundReceipt.receipt.logs['0'].args['1'];
         let receivedFundUid = fundReceipt.receipt.logs['0'].args['2'];
         fund = await Fund.at(receivedFundAddress);
+        let ethReserve = web3.utils.toWei("10", 'ether')
+        await fund.init( { from: fundOwner, value: ethReserve } );
         assert.equal(receivedFundOwner, fundOwner, "Owner address incorrect");
 
         await advanceBlock();
+        await erc20One.mint(fund.address, 100);
+        await erc20Two.mint(fund.address, 1000);
+        await erc20Three.mint(fund.address, 10000);
+        await erc20Four.mint(fund.address, 3000);
+        //TODO: create tokens to interact with 
+        //TODO: check buying and selling works? maybe in a sep test
     });
 
     it("Fund created correctly", async () => {
@@ -88,7 +103,7 @@ contract("Fund", (accounts) => {
             );
             assert.equal(
                 fundDetails.tokenPercentages[index],
-                receivedFundDetails[1][index].toNumber(),
+                receivedFundDetails[1][index],
                 "Fund token addresses incorrect"
             );
         }
@@ -135,20 +150,23 @@ contract("Fund", (accounts) => {
     
     it("Rebalance check", async () => {
         await assertRevert(fund.rebalance( { from: fundOwner } ), EVMRevert);
-        await increaseTimeTo(fundDetails.rebalancePeriod + 100);
-        let receipt = await fund.rebalance( { from: fundOwner } );
-        console.log(receipt);
+        // await increaseTimeTo(fundDetails.rebalancePeriod + 100);
+        // let receipt = await fund.rebalance( { from: fundOwner } );
+        // console.log(receipt);
     });
 
     
     it("Manual rebalance check", async () => {
-        console.log("0");
-        await assertRevert(fund.manualRebalance( { from: fundOwner } ), EVMRevert);
-        await increaseTimeTo(fundDetails.rebalancePeriod + 100);
-        console.log("0");
-        await assertRevert(fund.manualRebalance( { from: factoryOwner } ), EVMRevert);
-        console.log("0");
-        let receipt = await fund.manualRebalance( { from: fundOwner } );
-        console.log(receipt);
+        // await assertRevert(fund.manualRebalance( { from: fundOwner } ), EVMRevert);
+        // await increaseTimeTo(fundDetails.rebalancePeriod + 100);
+        // await assertRevert(fund.manualRebalance( { from: factoryOwner } ), EVMRevert);
+        // let receipt = await fund.manualRebalance( { from: fundOwner } );
+        // console.log(receipt);
+    });
+
+    it("When fund is created rebalance happens", async () => {
+        //TODO: check that the rebalance time is set to now
+        //TODO: check rebalance happens
+        //TODO: check tokens get bought 
     });
 });

@@ -19,6 +19,15 @@ contract Fund is IFund {
     uint8[] private _distribution;
     uint256 private _rebalancePeriod;
     uint256 private _lastRebalance;
+    bool private _disabled = false;
+
+    modifier notDisabled() {
+        require(
+            !_disabled, 
+            "The fund is disabled. If you are the owner you can re-enable the fund at your own risk"
+        );
+        _;
+    }
 
     modifier isOwner() {
         require(msg.sender == _owner, "Access Denied");
@@ -40,15 +49,23 @@ contract Fund is IFund {
         uint256 _rebalance
     ) 
         public
-        payable
     {
         _factory = msg.sender;
         _owner = _fundOwner;
-        addTokens(
-            _tokenAddresses,
-            _percentages
-        );
         _rebalancePeriod = _rebalance;
+        _tokens = _tokenAddresses;
+        _distribution = _percentages;
+    }
+
+    function init()
+        public
+        payable
+        isAdmin()
+    {
+        addTokens(
+            _tokens,
+            _distribution
+        );
     }
 
     /**
@@ -81,9 +98,26 @@ contract Fund is IFund {
     {
         return _rebalancePeriod;
     }
+//TODO make all arrays 100 length 
+    function getLastRebalance()
+        public
+        view
+        returns(uint256)
+    {
+        return _lastRebalance;
+    }
+
+    function getBalanceOfToken(uint256 _tokenPosition) 
+        public
+        view
+        returns(uint256)
+    {
+        return IERC20(_tokens[_tokenPosition]).balanceOf(address(this));
+    }
 
     function setNewRebalancePeriod(uint256 _newPeriod)
         public
+        notDisabled()
         isOwner()
     {
         _rebalancePeriod = _newPeriod;
@@ -104,21 +138,22 @@ contract Fund is IFund {
         uint8[] memory _percentages
     ) 
         public
+        // notDisabled()
         isAdmin()
     {
         _tokens = _tokenAddresses;
         _distribution = _percentages;
-        // for(uint8 i = 0; i < _tokens.length; i++) {
-        //     uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-        //     IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
-        // } 
-
+        for(uint8 i = 0; i < _tokens.length - 1; i++) {
+            uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
+            // IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
+        } 
         //TODO call the rebalance function and forward all eth
         _lastRebalance = now;
     }
 
     function rebalance()
         public
+        notDisabled()
     {
         require(_lastRebalance + _rebalancePeriod < now, "Rebalance period has not passed");
         for(uint i = 0; i < _tokens.length; i++) {
@@ -130,11 +165,12 @@ contract Fund is IFund {
 
     function manualRebalance()
         public
+        notDisabled()
         isOwner()
     {
         for(uint i = 0; i < _tokens.length; i++) {
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-            IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
+            // IERC20(_tokens[i]).approve(FundFactory(_factory).getRebabalncer(), balance);
         } 
         //TODO: Call rebalancer with all eth
     }
@@ -144,7 +180,15 @@ contract Fund is IFund {
         isAdmin()
     {
         //TODO: send all tokens to owner
+        for(uint i = 0; i < _tokens.length; i++) {
+            uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
+            // IERC20(_tokens[i]).transfer(_owner, balance);
+            // uint256 balanceAfter = IERC20(_tokens[i]).balanceOf(address(this));
+            // require(balanceAfter == 0, "Sending funds failed");
+        } 
+        //TODO: send remaining eth
         emit FundDeath(_owner);
+        _disabled = !_disabled;
         /**
             TypeError: Invalid type for argument in function call. 
             Invalid implicit conversion from address to address 

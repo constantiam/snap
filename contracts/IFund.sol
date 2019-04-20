@@ -1,6 +1,7 @@
 pragma solidity 0.5.0;
 
 contract IFund {
+    function init() public payable;
     function getOwner() public view returns(address);
     function addTokens(
         address[] memory _tokenAddresses, 
