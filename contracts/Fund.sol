@@ -26,8 +26,10 @@ contract Fund is IFund {
     {
         _factory = msg.sender;
         _owner = _fundOwner;
-        _tokens = _tokenAddresses;
-        _distribution = _percentages;
+        addTokens(
+            _tokenAddresses,
+            _percentages
+        );
     }
 
     function getOwner()
@@ -37,6 +39,8 @@ contract Fund is IFund {
     {
         return _owner;
     }
+
+    // function getTokens
 
     function addTokens(
         address[] memory _tokenAddresses, 
@@ -55,6 +59,7 @@ contract Fund is IFund {
             }
         } */
         //TODO for loop approving the rebalancer to spend tokens
+        //TODO call the rebalance function
     }
 
     function rebalance()
@@ -84,7 +89,6 @@ contract Fund is IFund {
         
         selfdestruct(_owner);
         */
-        
     }
 
     function() 

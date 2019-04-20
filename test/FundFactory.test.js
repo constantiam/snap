@@ -96,4 +96,33 @@ contract("FundFactory", (accounts) => {
         //TODO gets right uniswap address
         //TODO is deployed
     });
+
+    it("Getting all funds", async () => {
+        await fundFactory.createFund(
+            fundDetails.tokenAddresses,
+            fundDetails.tokenPercentages,
+            { from: fundOwner }
+        );
+        let allFunds = await fundFactory.getAllFundUids();
+        assert.equal(allFunds.toNumber(), 4, "There are an incorrect number of funds");
+    });
+
+    it("Getting fund details", async () => {
+        let fundReceipt = await fundFactory.createFund(
+            fundDetails.tokenAddresses,
+            fundDetails.tokenPercentages,
+            { from: fundOwner }
+        );
+        let receivedFundOwner = fundReceipt.receipt.logs['0'].args['0'];
+        let receivedFundAddress = fundReceipt.receipt.logs['0'].args['1'];
+        let receivedFundUid = fundReceipt.receipt.logs['0'].args['2'];
+        let allFunds = await fundFactory.getAllFundUids();
+        let receivedFundDetails = await fundFactory.getFundDetails(allFunds.toNumber());
+        assert.notEqual(receivedFundDetails['0'], '0x0000000000000000000000000000000000000000', "Fund owner address is empty");
+        assert.notEqual(receivedFundDetails['1'], '0x0000000000000000000000000000000000000000', "Fund address is empty");
+        assert.equal(allFunds.toNumber(), receivedFundUid, "Fund UID is incorrect");
+        assert.equal(receivedFundDetails['0'], fundOwner, "Fund owner is incorrect");
+        assert.equal(receivedFundDetails['0'], receivedFundOwner, "Fund owner is incorrect");
+        assert.equal(receivedFundDetails['1'], receivedFundAddress, "Fund address is incorrect");
+    });
 });

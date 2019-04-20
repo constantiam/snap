@@ -35,7 +35,18 @@ contract FundFactory {
         view
         returns(uint256)
     {
-        return _fundNonce;
+        return _fundNonce - 1;
+    }
+
+    function getFundDetails(uint256 _fundId)
+        public
+        view
+        returns(address, address)
+    {
+        return(
+            allFunds[_fundId].owner,
+            allFunds[_fundId].fundAddress
+        ); 
     }
 
     function getFactoryOwner()
