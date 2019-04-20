@@ -9,6 +9,7 @@ contract Exchange():
   def ethToTokenTransferOutput(tokens_bought: uint256, deadline: timestamp, recipient: address) -> uint256(wei): modifying
   def ethToTokenSwapOutput(tokens_bought: uint256, deadline: timestamp) -> uint256(wei): modifying
   def tokenToEthSwapInput(tokens_sold: uint256, min_eth: uint256(wei), deadline: timestamp) -> uint256(wei): modifying
+  def tokenToEthTransferInput(tokens_sold: uint256, min_eth: uint256(wei), deadline: timestamp, recipient: address) -> uint256(wei): modifying
 
 Payment: event()
 
@@ -53,15 +54,13 @@ def getTokenValueInWallet(_tokenAddress: address, _wallet: address) -> uint256:
 
 @payable
 @public
-def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _numberOfTokens: int128) -> int128:
-  totalFundValue: uint256 = self.getWalletValue(_tokenAddress, _numberOfTokens, msg.sender)
+def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _numberOfTokens: int128) -> uint256(wei):
+  totalFundValue: uint256 = self.getWalletValue(_tokenAddress, _numberOfTokens, self)
+  # return totalFundValue
   for i in range(0,100):
     if i == _numberOfTokens:
-      break
-    # self.token = _tokenAddress[i]
-    # numberOfTokens: uint256 = self.token.balanceOf(msg.sender)
-    
-    tokenValueInWallet: uint256 = self.getTokenValueInWallet(_tokenAddress[i], msg.sender)
+      break  
+    tokenValueInWallet: uint256 = self.getTokenValueInWallet(_tokenAddress[i], self)
     tokenPrice: uint256 = self.getTokenPrice(_tokenAddress[i])    
     currentRatio: decimal = (convert(tokenValueInWallet,decimal) / convert(totalFundValue,decimal))
     deltaRatio: decimal = convert(_weightings[i], decimal)/100.0 - currentRatio
@@ -70,9 +69,15 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _number
     #we only want to do the sell orders now (if we are exiting a position) and will do the buys
     #after with the ether gained 
     
+    
+    if requiredTredeInToken < 0.0:
+      requiredTradeValue: uint256 = convert(floor(as_unitless_number(requiredTredeInToken*-1.0)),uint256)
+      # return requiredTradeValue
+      minimum: uint256(wei) = 1 #improve this to be the minimum amount of the trade expected
+      return self.exchange.tokenToEthSwapInput(requiredTradeValue, minimum, block.timestamp + 10)
+      
 
-
-    return floor(requiredTredeInToken)
+    # return floor(requiredTredeInToken)
 
     # self.token.
     # tokenRatio: uint256 = 

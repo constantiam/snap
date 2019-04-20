@@ -68,16 +68,16 @@ contract("Rebalancer", (accounts) => {
             from: tokenOwner
         })
         //grab the exchange address and make an instance of it so we can add liquidity and trade against it
-        let mkrExchangeAddress = await uniswapFactory.getExchange(daiTokenContract.address)
-        let uniswapDaiExchange = await UniSwapExchange.at(mkrExchangeAddress)
+        daiExchangeAddress = await uniswapFactory.getExchange(daiTokenContract.address)
+        uniswapDaiExchange = await UniSwapExchange.at(daiExchangeAddress)
 
         //approve before we add liquidity
-        await daiTokenContract.approve(mkrExchangeAddress,
+        await daiTokenContract.approve(daiExchangeAddress,
             daiSupply, {
                 from: tokenOwner
             })
 
-        let amountAproved = await daiTokenContract.allowance(tokenOwner, mkrExchangeAddress)
+        amountAproved = await daiTokenContract.allowance(tokenOwner, daiExchangeAddress)
         console.log("Aproved")
         console.log(amountAproved.toString())
 
@@ -91,15 +91,15 @@ contract("Rebalancer", (accounts) => {
                 value: ethReserve
             })
 
-        let ethBalance = await web3.eth.getBalance(uniswapDaiExchange.address)
+        ethBalance = await web3.eth.getBalance(uniswapDaiExchange.address)
         console.log("Dai exchange ETH balance")
         console.log(ethBalance.toString())
 
-        let tokenBalance = await daiTokenContract.balanceOf(uniswapDaiExchange.address)
+        tokenBalance = await daiTokenContract.balanceOf(uniswapDaiExchange.address)
         console.log("Dai exchange DAI balance")
         console.log(tokenBalance.toString())
 
-        let currentEthPrice = tokenBalance / ethBalance
+        currentEthPrice = tokenBalance / ethBalance
 
         console.log("Dai exchange ETH balance price per eth in dai")
         console.log(currentEthPrice.toString())
@@ -282,6 +282,27 @@ contract("Rebalancer", (accounts) => {
 
                 console.log("WALLET VALUE")
                 console.log(walletValue.toString())
+                //because vyper does not have a simple method to define delegate call for now we will need to send
+                //all the eth that we have to the rebalancer, it will rebalance and then send back everything.
+                //This is due to how uniswap implements its transfer
+
+                let tokenBalance = await daiTokenContract.balanceOf(fundOwner)
+
+                await daiTokenContract.transfer(rebalancer.address,
+                    tokenBalance, {
+                        from: fundOwner
+                    })
+
+                tokenBalance = await mkrTokenContract.balanceOf(fundOwner)
+
+                await mkrTokenContract.transfer(rebalancer.address,
+                    tokenBalance, {
+                        from: fundOwner
+                    })
+
+                rebalancerTokenBalance = await mkrTokenContract.balanceOf(rebalancer.address)
+                console.log("rebalancer balance")
+                console.log(rebalancerTokenBalance.toString())
 
                 let requiredRatio = await rebalancer.rebalanceFund.call(tokenArray, weightingArray, 2, {
                     from: fundOwner
