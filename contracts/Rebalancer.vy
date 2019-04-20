@@ -22,21 +22,8 @@ def __init__(_uniswapFactory: address):
   self.owner = msg.sender
   self.uniswapFactory = _uniswapFactory
 
-
 @public
-def getTokenPrice(_tokenAddress: address) -> decimal:
-  self.token = _tokenAddress
-  exchange_addr: address = self.uniswapFactory.getExchange(_tokenAddress)
-  self.exchange = exchange_addr
-  exchangeTokenBalance: uint256 = self.token.balanceOf(exchange_addr)
-  exchangeTokenBalanceDecimal: decimal = convert(exchangeTokenBalance, decimal)
-  exchangeEtherBalance: uint256(wei) = exchange_addr.balance
-  exchangeEtherBalanceUint: uint256 = as_unitless_number(exchangeEtherBalance)
-  exchangeEtherBalanceDecimal: decimal = convert(exchangeEtherBalanceUint, decimal)
-  return exchangeEtherBalanceDecimal / exchangeTokenBalanceDecimal
-
-@public
-def getTokenPriceUint(_tokenAddress: address) -> uint256:
+def getTokenPrice(_tokenAddress: address) -> uint256:
   self.token = _tokenAddress
   exchange_addr: address = self.uniswapFactory.getExchange(_tokenAddress)
   self.exchange = exchange_addr
@@ -52,7 +39,7 @@ def getWalletValue(_tokenAddress: address[100], _numberOfTokens: int128, _wallet
     if i == _numberOfTokens:
       break
     self.token = _tokenAddress[i]
-    tokenPrice: uint256 = self.getTokenPriceUint(_tokenAddress[i])
+    tokenPrice: uint256 = self.getTokenPrice(_tokenAddress[i])
     numberOfTokens: uint256 = self.token.balanceOf(_wallet)
     totalWalletValue += tokenPrice * numberOfTokens
   return totalWalletValue / 10**18
@@ -61,7 +48,7 @@ def getWalletValue(_tokenAddress: address[100], _numberOfTokens: int128, _wallet
 def getTokenValueInWallet(_tokenAddress: address, _wallet: address) -> uint256:
   self.token = _tokenAddress
   numberOfTokens: uint256 = self.token.balanceOf(_wallet)
-  tokenPrice: uint256 = self.getTokenPriceUint(_tokenAddress)
+  tokenPrice: uint256 = self.getTokenPrice(_tokenAddress)
   return (numberOfTokens * tokenPrice) / 10**18
 
 @payable
@@ -73,18 +60,19 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _number
       break
     # self.token = _tokenAddress[i]
     # numberOfTokens: uint256 = self.token.balanceOf(msg.sender)
+    
     tokenValueInWallet: uint256 = self.getTokenValueInWallet(_tokenAddress[i], msg.sender)
-        
+    tokenPrice: uint256 = self.getTokenPrice(_tokenAddress[i])    
     currentRatio: decimal = (convert(tokenValueInWallet,decimal) / convert(totalFundValue,decimal))
     deltaRatio: decimal = convert(_weightings[i], decimal)/100.0 - currentRatio
-    requiredTrade: decimal = (convert(totalFundValue,decimal) * deltaRatio)
-
+    requiredTradeInEth: decimal = (convert(totalFundValue,decimal) * deltaRatio)
+    requiredTredeInToken: decimal = (requiredTradeInEth * convert(10**18,decimal)) / convert(tokenPrice, decimal)
     #we only want to do the sell orders now (if we are exiting a position) and will do the buys
     #after with the ether gained 
     
 
 
-    return floor(requiredTrade*10000.0)
+    return floor(requiredTredeInToken)
 
     # self.token.
     # tokenRatio: uint256 = 
