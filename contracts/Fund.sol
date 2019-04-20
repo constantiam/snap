@@ -178,6 +178,7 @@ contract Fund is IFund {
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
             IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
         } 
+        
         //TODO make all arrays 100 length 
         //TODO: Call rebalancer with all eth
     }

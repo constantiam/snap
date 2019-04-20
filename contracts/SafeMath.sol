@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
 /**
+ * THIS CONTRACT IS FOR TESTING PURPOSES AND IS NOT PART OF THE PROJECT
  * @title SafeMath
  * @dev Unsigned math operations with safety checks that revert on error.
  */

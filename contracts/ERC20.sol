@@ -4,6 +4,7 @@ import "./IERC20.sol";
 import "./SafeMath.sol";
 
 /**
+ * THIS CONTRACT IS FOR TESTING PURPOSES AND IS NOT PART OF THE PROJECT
  * @title Standard ERC20 token
  *
  * @dev Implementation of the basic standard token.

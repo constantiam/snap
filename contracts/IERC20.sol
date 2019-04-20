@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
 /**
+ * THIS CONTRACT IS FOR TESTING PURPOSES AND IS NOT PART OF THE PROJECT
  * @title ERC20 interface
  * @dev see https://eips.ethereum.org/EIPS/eip-20
  */
