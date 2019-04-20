@@ -7,11 +7,15 @@ contract Fund is IFund {
     address private _factory;
     address[] private _tokens;
     uint8[] private _distribution;
+    bool private _dead = false;
 
     modifier isOwner() {
         require(msg.sender == _owner || msg.sender == _factory, "Access Denied");
         _;
     }
+
+    event AddTokens();
+    event FundDeath(address indexed owner);
 
     constructor(
         address[] memory _tokenAddresses, 
@@ -25,6 +29,22 @@ contract Fund is IFund {
         _owner = _fundOwner;
         _tokens = _tokenAddresses;
         _distribution = _percentages;
+    }
+
+    function getOwner()
+        public
+        view
+        returns(address)
+    {
+        return _owner;
+    }
+
+    function getContractDeath()
+        public
+        view
+        returns(bool)
+    {
+        return(_dead);
     }
 
     function addTokens(
@@ -62,10 +82,19 @@ contract Fund is IFund {
 
     function killFund()
         public
-        isOwner()
+        // isOwner()
     {
-        //TODO: send all tokens to owner and self destruct
+        //TODO: send all tokens to owner
+        _dead = true;
+        emit FundDeath(_owner);
+        /**
+            TypeError: Invalid type for argument in function call. 
+            Invalid implicit conversion from address to address 
+            payable requested. 
+        
         selfdestruct(_owner);
+        */
+        
     }
 
     function() 
