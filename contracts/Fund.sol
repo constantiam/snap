@@ -15,8 +15,8 @@ import "./IERC20.sol";
 contract Fund is IFund {
     address payable _owner;
     address private _factory;
-    address[] private _tokens;
-    uint8[] private _distribution;
+    address[100] private _tokens;
+    int128[100] private _distribution;
     uint256 private _rebalancePeriod;
     uint256 private _lastRebalance;
     bool private _disabled = false;
@@ -43,8 +43,8 @@ contract Fund is IFund {
     event FundDeath(address indexed owner);
 
     constructor(
-        address[] memory _tokenAddresses, 
-        uint8[] memory _percentages, 
+        address[100] memory _tokenAddresses, 
+        int128[100] memory _percentages, 
         address payable _fundOwner,
         uint256 _rebalance
     ) 
@@ -142,8 +142,8 @@ contract Fund is IFund {
             owner.
      */
     function addTokens(
-        address[] memory _tokenAddresses, 
-        uint8[] memory _percentages
+        address[100] memory _tokenAddresses, 
+        int128[100] memory _percentages
     ) 
         public
         notDisabled()
@@ -162,6 +162,9 @@ contract Fund is IFund {
     {
         require(_lastRebalance + _rebalancePeriod < now, "Rebalance period has not passed");
         for(uint i = 0; i < _tokens.length; i++) {
+            if(_tokens[i] == address(0x0) && i != 0) {
+                break;
+            }
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
             IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
         } 
@@ -175,6 +178,9 @@ contract Fund is IFund {
         isAdmin()
     {
         for(uint i = 0; i < _tokens.length; i++) {
+            if(_tokens[i] == address(0x0) && i != 0) {
+                break;
+            }
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
             IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
         } 
@@ -188,6 +194,9 @@ contract Fund is IFund {
         isAdmin()
     {
         for(uint i = 0; i < _tokens.length; i++) {
+            if(_tokens[i] == address(0x0) && i != 0) {
+                break;
+            }
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
             IERC20(_tokens[i]).transfer(_owner, balance);
             uint256 balanceAfter = IERC20(_tokens[i]).balanceOf(address(this));
