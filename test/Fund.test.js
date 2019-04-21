@@ -46,7 +46,7 @@ contract("Fund", (accounts) => {
     }
 
     before(async function () {
-        //Creates ERC20s to use through testing
+        //Creates ERC20s to use in testing
         erc20One = await Erc20.new({ from: tokenCreator });
         erc20Two = await Erc20.new({ from: tokenCreator });
         erc20Three = await Erc20.new({ from: tokenCreator });
