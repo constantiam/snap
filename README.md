@@ -13,10 +13,41 @@
         <br>
     </p>
     <img src="./images/diagram1.jpg">
-    <h4>
-        Getting Snap running locally 
-    </h4>
-    <p>
-        
-    </p>
+</div>
+
+#### Getting Snap running locally 
+
+###### Requirements
+Vyper Requirements
+Pre requisite: [python3](https://www.python.org/download/releases/3.0/)
+1. Set up a virtual environment 
+```
+$ pip3 install virtualenv
+$ virtualenv -p python3 env
+$ source env/bin/activate
+```
+2. Install dependencies
+```
+pip install -r requirements.txt
+```
+Pre requisite: [truffle](https://truffleframework.com/)
+Pre requisite: [ganache](https://truffleframework.com/ganache)
+Pre requisite: [yarn](https://yarnpkg.com/lang/en/docs/install/#windows-stable)
+3. Run yarn
+```
+yarn
+```
+###### Testing
+To test the contracts, run:
+```
+truffle test --migrations_directory migrations_null
+```
+To get the front end running locally, run:
+```
+yarn serv
+```
+
+Have a balanced time!
+<div align="center">
+    <img src="./images/gif.gif">
 </div>
