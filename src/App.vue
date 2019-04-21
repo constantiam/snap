@@ -87,15 +87,23 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 @import url('https://fonts.googleapis.com/css?family=Space+Mono');
+@import "~vue-material/dist/theme/engine"; // Import the theme engine
+
+@include md-register-theme("default", (
+  primary: #7E496E, // The primary color of your brand
+  accent: #A78C9F // The secondary color of your brand
+));
+
+@import "~vue-material/dist/theme/all"; // Apply the theme
 
 html, body {
   font-family: 'Space Mono', sans-serif;
 }
 
 #app {
-  text-align: center;
+  /* text-align: center; */
   color: #2c3e50;
   margin-top: 10px;
 }

@@ -1,14 +1,19 @@
 <template>
   <div class="page-container">
-    <div class="md-layout md-alignment-top-center" style="margin-left:30px; margin-right:30px;">
+    <div class="md-layout" style="margin-left:30px; margin-right:30px;">
       <div v-if="!started" class="md-layout-item">
         <md-button @click="started=true" class="md-primary md-raised">Get Started</md-button>
       </div>
 
       <div v-if="started" class="md-layout-item">
         <md-steppers :md-active-step.sync="active">
-          <md-step id="first" md-label="First Step" style="background-color: #FAFAFA" :md-done.sync="first">
-            <div class="md-layout md-gutter md-alignment-center-center">
+          <md-step
+            id="first"
+            md-label="Snapfund setup"
+            style="background-color: #FAFAFA; padding-left:0px; padding-right:0px"
+            :md-done.sync="first"
+          >
+            <div class="md-layout md-gutter">
               <div class="md-layout-item">
                 <md-card style="padding:20px">
                   <h3>Set rebalance period</h3>
@@ -45,12 +50,12 @@
               <div class="md-layout-item">
                 <md-card style="padding:20px;">
                   <h3>Set your first contribution amount!</h3>
-                  <p>This will be traded to achieve your desired portfolio. You can add more or remove funds later.</p>
+                  <p>This will be traded to achieve your desired Snapfund. You can add more or remove funds later.</p>
                   <div class="md-layout md-gutter">
                     <div class="md-layout-item">
                       <md-field>
                         <label>Enter number</label>
-                        <md-input v-model="startingEther" type="number"></md-input>
+                        <md-input v-model="addedEther" type="number"></md-input>
                       </md-field>
                     </div>
                     <div class="md-layout-item md-size-20">Eth</div>
@@ -62,103 +67,159 @@
             <div class="md-layout">
               <div class="md-layout-item">
                 <md-card style="padding:20px;  margin-top:20px">
-                  <h3>Name your Snapfund!</h3>
-                  <p>You’ll get a sweet ENS domain, so make it catchy and at least 7 characters long.</p>
-                  <md-field>
-                    <label>Portfolio Name</label>
-                    <md-input v-model="portfolioName" maxlength="30"></md-input>
-                  </md-field>
-
-                  
-                  <md-button
-                    class="md-raised md-primary"
-                    @click="setDone('first', 'second')"
-                  >Continue</md-button>
-                  <md-button @click="started=false" class="md-secondary md-raised">Cancel</md-button>
+                  <div class="md-layout">
+                    <div class="md-layout-item">
+                      <h3>Name your Snapfund!</h3>
+                      <p>You’ll get a sweet ENS domain, so make it catchy and at least 7 characters long.</p>
+                      <md-field style="width:200px">
+                        <label>Snapfund Name</label>
+                        <md-input v-model="SnapfundName" maxlength="30"></md-input>.snapfund.eth
+                      </md-field>
+                    </div>
+                    <div class="md-layout-item" style="padding-top:100px; text-align:right">
+                      <md-button @click="started=false" class="md-secondary md-raised">Cancel</md-button>
+                      <md-button
+                        class="md-raised md-primary"
+                        @click="setDone('first', 'second')"
+                        :disabled="setupValidation"
+                      >Next</md-button>
+                    </div>
+                  </div>
                 </md-card>
               </div>
             </div>
           </md-step>
 
-          <md-step id="second" md-label="Second Step" :md-done.sync="second">
+          <md-step
+            id="second"
+            md-label="Fund Distribution"
+            style="background-color: #FAFAFA; padding-left:0px; padding-right:0px"
+            :md-done.sync="second"
+            :disabled="setupValidation"
+          >
             <div>
-              <div class="md-layout-item md-size-20 md-alignment-right">
-                <md-button @click="showSelectTokenModal" class="md-primary md-raised">
-                  <md-icon>add</md-icon>Add Tokens
-                </md-button>
-              </div>
               <div v-if="selected.length > 0">
-                <div class="md-layout md-gutter md-alignment-top-center">
+                <div class="md-layout md-gutter">
                   <div class="md-layout-item">
-                    <h2>Select portfolio distribution</h2>
-                    <span
-                      class="md-caption"
-                    >Select the distribution of the diffrent assets to place within your portfolio.</span>
-                    <div v-for="token in selected">
-                      <div class="md-layout md-alignment-center-center md-gutter">
-                        <div class="md-layout-item md-size-10 md-layout md-alignment-center-center">
-                          <div class="md-layout-item">
-                            <cryptoicon
-                              :symbol="token.symbol.toLowerCase()"
-                              size="25"
-                              style="margin-top:5px; marin-right:15px"
-                            />
-                          </div>
-                          <div class="md-layout-item">
-                            <h4>{{token.symbol}}</h4>
-                          </div>
-                        </div>
+                    <md-card style="padding:20px;  margin-top:20px">
+                      <div class="md-layout md-gutter">
                         <div class="md-layout-item">
-                          <vue-slider
-                            v-model="token.ratio"
-                            v-bind="options"
-                            :dotOptions="{max: token.ratio + unselectedPercent}"
-                            :max="100"
-                            :tooltip="'always'"
-                          ></vue-slider>
+                          <h2>Select Snapfund distribution</h2>
+                          <span
+                            class="md-caption"
+                          >Select the distribution of the diffrent assets to place within your Snapfund.</span>
                         </div>
-                        <div class="md-layout-item md-size-5">
-                          <md-button
-                            class="md-icon-button md-raised md-accent"
-                            @click="removeToken(token)"
-                          >
-                            <md-icon>remove</md-icon>
+                        <div class="md-layout-item md-size-20 md-alignment-center-right">
+                          <md-button @click="showSelectTokenModal" class="md-primary md-raised">
+                            <md-icon>add</md-icon>Add Tokens
                           </md-button>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="md-layout-item md-size-30">
-                    <h2>Visualize distribution</h2>
-                    <apexchart
-                      type="donut"
-                      width="400"
-                      :options="pieValues.options"
-                      :series="pieValues.values"
-                    />
-                  </div>
-                </div>
 
-                <div
-                  class="md-layout md-gutter md-alignment-center-center"
-                  style="padding-bottom:20px"
-                >
-                  <div class="md-layout-item">
-                    <p>Unalocated: {{unselectedPercent}}</p>
+                      <div v-for="(token, index) in selected" :key="index" style="padding-top:20px">
+                        <div class="md-layout md-gutter md-alignment-center-center">
+                          <div class="md-layout-item md-size-15 md-layout">
+                            <div class="md-layout-item">
+                              <cryptoicon
+                                :symbol="token.symbol.toLowerCase()"
+                                size="25"
+                                style="margin-top:5px; marin-right:15px"
+                              />
+                            </div>
+                            <div class="md-layout-item">
+                              <h4>{{token.symbol}}</h4>
+                            </div>
+                          </div>
+                          <div class="md-layout-item">
+                            <vue-slider
+                              v-model="token.ratio"
+                              v-bind="options"
+                              :dotOptions="{max: token.ratio + unselectedPercent}"
+                              :max="100"
+                              :tooltip="'always'"
+                              :process-style="{ backgroundColor: colors[index] }"
+                              :tooltip-style="{ backgroundColor: colors[index], borderColor: colors[index] }"
+                            ></vue-slider>
+                          </div>
+                          <div class="md-layout-item md-size-10">
+                            <md-button
+                              class="md-icon-button md-raised md-accent"
+                              @click="removeToken(token)"
+                            >
+                              <md-icon>remove</md-icon>
+                            </md-button>
+                          </div>
+                        </div>
+                      </div>
+                    </md-card>
                   </div>
-                  <div class="md-layout-item md-size">
-                    <md-button
-                      :disabled="validPortfolio"
-                      class="md-raised md-primary"
-                    >Create Portfolio</md-button>
+
+                  <div class="md-layout-item">
+                    <md-card
+                      class="md-alignment-center-center"
+                      style="padding:20px;  margin-top:20px"
+                    >
+                      <h2>Visualize distribution</h2>
+                      <div class="md-layout md-gutter">
+                        <div class="md-layout-item">
+                          <apexchart
+                            type="donut"
+                            width="400"
+                            :options="pieValues.options"
+                            :series="pieValues.values"
+                            class="center"
+                          />
+                        </div>
+                        <div class="md-layout-item">
+                          <md-table class="md-caption" style="padding-top:25px">
+                            <md-table-row>
+                              <md-table-head>Key</md-table-head>
+                              <md-table-head>Symbol</md-table-head>
+                              <md-table-head>USD</md-table-head>
+                              <md-table-head>Alocation</md-table-head>
+                            </md-table-row>
+
+                            <md-table-row v-for="(item, index) in selected" :key="index">
+                              <md-table-cell>
+                                <span class="dot" :style="'background:' + colors[index]"/>
+                              </md-table-cell>
+                              <md-table-cell>
+                                {{item.symbol}}
+                              </md-table-cell>
+                              <md-table-cell>${{Math.round((item.ratio / 100) * addedEtherUsdValue)}}</md-table-cell>
+                              <md-table-cell>{{item.ratio}}%</md-table-cell>
+                            </md-table-row>
+                          </md-table>
+                        </div>
+                      </div>
+                      <div class="md-layout md-gutter">
+                        <div class="md-layout-item">
+                          <p>Unlocated: {{unselectedPercent}}%</p>
+                        </div>
+                        <div class="md-layout-item">
+                          <p>Total Value: ${{addedEtherUsdValue}}</p>
+                        </div>
+                        <div class="md-layout-item md-size" style="text-align:right">
+                          <md-button
+                            @click="setDone('first', 'second')"
+                            class="md-secondary md-raised"
+                          >Back</md-button>
+                          <md-button
+                            :disabled="validSnapfund"
+                            @click="setDone('second', 'third')"
+                            class="md-raised md-primary"
+                          >Next</md-button>
+                        </div>
+                      </div>
+                    </md-card>
                   </div>
                 </div>
               </div>
               <div>
                 <md-empty-state
                   md-icon="account_balance"
-                  md-label="Create a new portfolio"
-                  md-description="Enter a portfolio name above and then start adding tokens. You can select the diffrent ratios for each and select a rebalance period."
+                  md-label="Create a new Snapfund"
+                  md-description="Enter a Snapfund name above and then start adding tokens. You can select the diffrent ratios for each and select a rebalance period."
                   v-if="selected.length==0"
                 >
                   <md-button @click="showSelectTokenModal" class="md-primary md-raised">Add Tokens</md-button>
@@ -167,9 +228,107 @@
             </div>
           </md-step>
 
-          <md-step id="third" md-label="Third Step" :md-done.sync="third">
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias doloribus eveniet quaerat modi cumque quos sed, temporibus nemo eius amet aliquid, illo minus blanditiis tempore, dolores voluptas dolore placeat nulla.</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias doloribus eveniet quaerat modi cumque quos sed, temporibus nemo eius amet aliquid, illo minus blanditiis tempore, dolores voluptas dolore placeat nulla.</p>
+          <md-step
+            id="third"
+            md-label="Confirmation"
+            :md-done.sync="third"
+            style="background-color: #FAFAFA; padding-left:0px; padding-right:0px"
+          >
+            <div class="md-layout md-gutter">
+              <div class="md-layout-item">
+                <md-card style="padding:20px;  margin-top:20px">
+                  <h2>Final Distribution</h2>
+                  <div class="md-layout md-gutter">
+                    <div class="md-layout-item">
+                      <apexchart
+                        type="donut"
+                        width="400"
+                        :options="pieValues.options"
+                        :series="pieValues.values"
+                        class="center"
+                      />
+                    </div>
+                    <div class="md-layout-item">
+                      <md-table class="md-caption" style="padding-top:50px">
+                        <div v-for="(item, index) in selected" :key="index">
+                          <md-table-row>
+                            <md-table-cell>
+                              <span class="dot" :style="'background:' + colors[index]"/>
+                            </md-table-cell>
+                            <md-table-cell>{{item.symbol}}</md-table-cell>
+                            <md-table-cell>${{Math.round((item.ratio / 100) * addedEtherUsdValue)}}</md-table-cell>
+                            <md-table-cell>{{item.ratio}}%</md-table-cell>
+                          </md-table-row>
+                        </div>
+                      </md-table>
+                    </div>
+                  </div>
+                </md-card>
+              </div>
+              <div class="md-layout-item">
+                <md-card style="padding:20px;  margin-top:20px">
+                  <h2>Confirm your Snapfund details</h2>
+                  <div class="md-layout md-gutter md-alignment-center-center">
+                    <div class="md-layout-item md-size-30">Snapfund name:</div>
+                    <div class="md-layout-item">
+                      <md-field style="width:200px">
+                        <label>Snapfund Name</label>
+                        <md-input v-model="SnapfundName" maxlength="30"></md-input>.snapfund.eth
+                      </md-field>
+                    </div>
+                  </div>
+                  <div class="md-layout md-gutter md-alignment-center-center">
+                    <div class="md-layout-item md-size-30">Rebalance every:</div>
+                    <div class="md-layout-item">
+                      <div class="md-layout md-gutter">
+                        <!-- <div class="md-layout-item">Rebalance Every:</div> -->
+                        <div class="md-layout-item">
+                          <md-field>
+                            <label>Rebalance Every</label>
+                            <md-input v-model="rebalancePeriod" type="number"></md-input>
+                          </md-field>
+                        </div>
+                        <div class="md-layout-item">
+                          <md-field>
+                            <label for="rebalanceEvery">Period</label>
+                            <md-select
+                              v-model="rebalanceEvery"
+                              name="rebalanceEvery"
+                              id="rebalanceEvery"
+                            >
+                              <md-option value="hour">Hours</md-option>
+                              <md-option value="day">Days</md-option>
+                              <md-option value="week">Weeks</md-option>
+                              <md-option value="month">Months</md-option>
+                            </md-select>
+                          </md-field>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="md-layout md-gutter md-alignment-center-center">
+                    <div class="md-layout-item md-size-30">Initial contribution:</div>
+                    <div class="md-layout-item">
+                      <md-field>
+                        <label>Enter number</label>
+                        <md-input v-model="addedEther" type="number"></md-input>
+                      </md-field>
+                    </div>
+                  </div>
+                  <div class="md-layout-item md-size" style="text-align:right">
+                    <md-button
+                      @click="setDone('first', 'second')"
+                      class="md-secondary md-raised"
+                    >Back</md-button>
+                    <md-button
+                      :disabled="validSnapfund || setupValidation"
+                      @click="setDone('second', 'third')"
+                      class="md-raised md-primary"
+                    >Create SnapFund 🚀</md-button>
+                  </div>
+                </md-card>
+              </div>
+            </div>
           </md-step>
         </md-steppers>
       </div>
@@ -180,7 +339,7 @@
         <div class="md-layout-item">
           <div class="md-layout">
             <div class="md-layout-item">
-              <h1 style="padding-left:15px">Select tokens to add to portfolio</h1>
+              <h1 style="padding-left:15px">Select tokens to add to Snapfund</h1>
             </div>
             <div class="md-layout-item-20" style="padding-top:10px">
               <md-button class="md-icon-button text-align: right" @click="hideSelectTokenModal">
@@ -245,15 +404,27 @@ export default {
   components: { ClickableAddress },
   data: () => ({
     selected: [],
-    portfolioName: "",
+    SnapfundName: "",
     rebalanceEvery: 0,
     rebalancePeriod: "",
     started: false,
-    startingEther: 0,
+    addedEther: 0,
     active: "first",
     first: false,
     second: false,
-    third: false
+    third: false,
+    colors: [
+      "#A8A2F5",
+      "#E66C82",
+      "#F8D771",
+      "#9BECBE",
+      "#4371E0",
+      "#CC83E9",
+      "#F77D6A",
+      "#D5F871",
+      "#67E6ED",
+      "#7B66F7"
+    ]
   }),
   methods: {
     setDone(id, index) {
@@ -313,6 +484,9 @@ export default {
     }
   },
   computed: {
+    addedEtherUsdValue() {
+      return this.addedEther * 170;
+    },
     ...mapState(["TokenInfo"]),
     sliders() {
       let sliderValues = [];
@@ -324,7 +498,7 @@ export default {
     options() {
       let remaining = 100 - this.totalSelected;
       return {
-        process: ([pos]) => [
+        process: ([pos, i]) => [
           [0, pos],
           [pos, pos + remaining, { backgroundColor: "#999" }]
         ]
@@ -343,22 +517,11 @@ export default {
       return 100 - this.totalSelected;
     },
     pieValues() {
-      let colors = [
-        "#A8A2F5",
-        "#E66C82",
-        "#F8D771",
-        "#9BECBE",
-        "#4371E0",
-        "#CC83E9",
-        "#F77D6A",
-        "#D5F871",
-        "#67E6ED",
-        "#7B66F7"
-      ];
       let pieValues = [];
       let pieLabels = [];
       let pieColors = [];
       let count = 0;
+      let colors = this.colors;
       this.selected.forEach(function(token) {
         pieValues.push(token.ratio);
         pieLabels.push(token.symbol);
@@ -374,16 +537,37 @@ export default {
         options: {
           labels: pieLabels,
           colors: pieColors,
+          dataLabels: {
+            enabled: true
+          },
+          responsive: [
+            {
+              breakpoint: 480,
+              options: {
+                chart: {
+                  width: 200
+                },
+                legend: {
+                  show: false
+                }
+              }
+            }
+          ],
           legend: {
-            position: "top"
+            show: false
           }
         }
       };
     },
-    validPortfolio() {
+    validSnapfund() {
+      if (this.unselectedPercent > 0) {
+        return true;
+      }
+      return false;
+    },
+    setupValidation() {
       if (
-        this.unselectedPercent > 0 ||
-        this.portfolioName == "" ||
+        this.SnapfundName == "" ||
         this.rebalanceEvery == 0 ||
         this.rebalancePeriod == ""
       ) {
@@ -394,3 +578,18 @@ export default {
   }
 };
 </script>
+
+<style>
+.center {
+  text-align: center;
+}
+.dot {
+  vertical-align: middle;
+  text-align: center;
+  height: 25px;
+  width: 25px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+</style>
