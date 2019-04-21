@@ -15,7 +15,7 @@
           <md-button class="md-raised md-primary" @click="goToCreate" style="margin-top:25px">Begin</md-button>
         </div>
         <div class="md-layout-item md-side-40">
-          <logo/>
+          <img style="text-align: center; width:500px; margin-left:50px; margin-top:-100px;" src="@/assets/gif.gif"/>
         </div>
       </div>
       <div class="md-layout md-gutter md-alignment-bottom-right" style="padding-top:400px">
@@ -34,12 +34,11 @@
 // @ is an alias to /src
 //import HelloWorld from "@/components/HelloWorld.vue";
 
-import logo from "@/assets/SnapLogo_large.svg";
 import router from "@/router";
 
 export default {
   name: "home",
-  components: { logo },
+  components: { },
   methods: {
     goToCreate() {
       router.push({ name: "create" });
