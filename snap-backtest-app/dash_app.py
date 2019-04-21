@@ -23,7 +23,10 @@ bar_buttons_to_remove = ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d',
 thanos_color = '#774C6C'
 slider_max = 30
 slider_step= 2
-rebalance_type = None
+rebalance_type = 'periodic'
+rebalance_period = 'daily'
+rebalance_threshold = 10
+portfolio = ['ETH', 'BAT', 'BNB', 'DAI', 'ENJ', 'MKR']
 tokens = get_tokens()
 
 @app.server.route('/static/<resource>')
@@ -36,20 +39,21 @@ app.css.append_css({
 
 logo_fn = 'logo.png'
 thanos_fn = 'thanos.png'
+markowitz_fn = 'markowitz.png'
 encoded_logo = base64.b64encode(open(logo_fn, 'rb').read())
 encoded_thanos = base64.b64encode(open(thanos_fn, 'rb').read())
+encoded_markowitz = base64.b64encode(open(markowitz_fn, 'rb').read())
 
 app.layout = html.Div(children=[
-
 
     html.Div(id='header', children=[
 
         html.Img(src='data:image/png;base64,{}'.format(encoded_logo.decode()),
             style={'vertical-align': 'middle', 'margin': '1%', 'margin-left': '1%', 'height':
-                '50px', 'width': 'auto', 'text-align': 'left'}
+                   '50px', 'width': 'auto', 'text-align': 'left'}
         ),
 
-        html.H2(
+        html.H1(
             children='Snapfund Backtester',
             style={
                 'display': 'inline', 'color': 'white', 'vertical-align': 'middle', 'margin-left':
@@ -67,35 +71,37 @@ app.layout = html.Div(children=[
 
        html.Div(id='controls', children=[
             html.Div(id='token-selector', children=[
-                html.Div('Portfolio', style={'margin-bottom': '2%', 'font-weight': 'bold', 'font-size': '150%'}),
+                html.Div('Select portfolio', style={'margin-bottom': '2%', 'font-weight': 'bold', 'font-size': '150%'}),
                 dcc.Checklist(
                     id='selected-tokens',
                     options=[{'label': i, 'value': i} for i in tokens],
-                    values=['ETH', 'DAI'],
+                    values=portfolio,
                     style={'font-size': '120%'},
                 ),
                 ], style={'text-align': 'center', 'margin': '5%'}),
 
             html.Div(id='rebalance-type-dropdown', children=[
-                html.Div('Rebalancing type',
+                html.Div('Selct rebalancing type',
                     style={'margin-bottom': '2%', 'font-weight': 'normal', 'font-size': '130%'}),
                 dcc.Dropdown(
                         id='rebalance-type',
                         options=[{'label': i, 'value': i} for i in [ 'periodic', 'threshold']],
+                        value='periodic',
                     ),
             ], style={'text-align': 'center', 'margin': '5%', }),
 
             html.Div(id='rebalance-period-dropdown', children=[
-                html.Div('Rebalancing period',
+                html.Div('Select rebalancing period',
                     style={'margin-bottom': '2%', 'font-weight': 'normal', 'font-size': '130%'}),
                 dcc.Dropdown(
                     id='rebalance-period',
                     options=[{'label': i, 'value': i} for i in ['daily', 'weekly', 'monthly']],
+                    value='daily',
                 ),
                 ], style={'text-align': 'center', 'margin': '5%', }),
 
             html.Div(id='rebalance-threshold-slider', children=[
-                html.Div('Rebalancing threshold',
+                html.Div('Select bebalancing threshold',
                     style={'margin-bottom': '2%', 'font-weight': 'normal', 'font-size': '130%'}),
                 dcc.Slider(
                     id='rebalance-threshold',
@@ -116,11 +122,35 @@ app.layout = html.Div(children=[
 
     html.P(id='placeholder'),
 
+    html.H1(
+            children='Snap Comparison',
+            style={
+                'display': 'inline', 'color': '#3D2738', 'vertical-align': 'middle', 'margin-left':
+                '20%','margin-right': '20%', 'margin': '10%'
+                }
+            ),
+
     html.Div([
         dcc.Graph(
             id='line-plot', config={'modeBarButtonsToRemove': bar_buttons_to_remove},
             ),
-        ], style={'background': '#ffffff', 'margin-top': '10%', }),
+        ], style={'background': '#ffffff', 'margin-top': '3%', 'margin-bottom': '5%',}),
+
+    html.Div(id='markowitz', children=[
+
+        html.H1(
+            children='Optimal PortFolio Allocation',
+            style={
+                'display': 'inline', 'color': '#3D2738', 'vertical-align': 'middle', 'margin-left':
+                '20%','margin-right': '20%', 'margin': '10%'
+                }
+            ),
+
+        html.Img(src='data:image/png;base64,{}'.format(encoded_markowitz.decode()),
+            style={'vertical-align': 'middle', 'margin': '1%', 'margin-left': '1%',
+                   'height': '1500px', 'width': 'auto', 'text-align': 'left'}),
+        ])
+
     ], style={'margin-left': '10%', 'margin-right': '10%', 'width': '75%', 'text-align': 'center',
               'background-color': 'white', 'color': thanos_color, 'font-family': 'Courier New'})
 
