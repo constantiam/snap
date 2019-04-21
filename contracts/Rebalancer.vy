@@ -56,6 +56,10 @@ def getTokenValueInWallet(_tokenAddress: address, _wallet: address) -> uint256:
   return (numberOfTokens * tokenPrice) / 10**18
 
 
+# @private
+# def makeSellTrade(_tradeValue: uint256, _tradeExchange: address):
+#   self.exchange = _tradeExchange
+
 @private
 def executeRebalanceSellTrades(_tradeValues: uint256[100], _tradeExchanges: address[100], _numberOfTrades: int128) -> bool:
 # self.exchange.tokenToEthSwapInput(requiredTradeValue, minimum, block.timestamp + 10)
@@ -64,6 +68,7 @@ def executeRebalanceSellTrades(_tradeValues: uint256[100], _tradeExchanges: addr
     if i == _numberOfTrades:
       break
     self.exchange = _tradeExchanges[i]
+    # self.makeSellTrade(_tradeValues[i],_tradeExchanges[i])
     # self.exchange.tokenToEthSwapInput(_tradeValues[i], minimum, block.timestamp + 10)
   return True
 
@@ -75,7 +80,6 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _number
   buyOrdersValues: uint256[100]
   buyOrdersExchanges: address[100]
   buyOrderCount: int128 = 0
-
   
   sellOrdersValues: uint256[100]
   sellOrdersExchanges: address[100]
@@ -101,7 +105,7 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _number
       sellOrdersExchanges[sellOrderCount] = exchange_addr
       sellOrderCount = sellOrderCount + 1
       minimum: uint256(wei) = 1 #improve this to be the minimum amount of the trade expected
-      # self.exchange.tokenToEthSwapInput(requiredTradeValue, minimum, block.timestamp + 10)
+      #!!!!! self.exchange.tokenToEthSwapInput(requiredTradeValue, minimum, block.timestamp + 10)
     if requiredTredeInToken > 0.0:
       requiredTradeValue: uint256 = convert(floor(as_unitless_number(requiredTredeInToken)),uint256)
       buyOrdersValues[buyOrderCount] = requiredTradeValue
@@ -110,7 +114,7 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _number
 
     
       # self.exchange = buyOrders[j].exchange_addr
-      # self.exchange.ethToTokenSwapOutput(buyOrders[j].requiredTradeValue, block.timestamp + 10, value = self.balance)
+      #!!!!! self.exchange.ethToTokenSwapOutput(buyOrders[j].requiredTradeValue, block.timestamp + 10, value = self.balance)
     
 
     # self.token.

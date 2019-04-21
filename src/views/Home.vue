@@ -1,25 +1,47 @@
 <template>
   <div class="page-container">
-    Create a new automatically rebalanced portfolio!
-<br>
-    Some awesome text and images to show what we are all about!
-<br>
-    explain how the user needs a wallet ect. and then drive to the button below.
-    <br>
-    <md-button class="md-raised" @click="handelLogin">Begin</md-button>
+    <div style="margin-left: 200px; margin-top: 100px; width:1800px">
+      <div class="md-layout md-gutter">
+        <div class="md-layout-item md-side-60">
+          <span class="md-display-3">
+            Perfectly balanced,
+            <br>as all things should be.
+          </span>
+
+          <p style="margin-top:50px;">Snap lets you create totally decentralised and automatically rebalancing smart contract portfolios.</p>
+
+          <p>Choose your tokens, pick your ratios, set a time period, load up the contract and your new Snapfund will make sure your universe is balanced using the power of mathematics and decentralised exchanges.</p>
+
+          <md-button class="md-raised md-primary" @click="goToCreate" style="margin-top:25px">Begin</md-button>
+        </div>
+        <div class="md-layout-item md-side-40">
+          <logo/>
+        </div>
+      </div>
+      <div class="md-layout md-gutter md-alignment-bottom-right" style="padding-top:400px">
+        <div class="md-layout-item md-side-50">
+          <p>Built with Ethereum, Uniswap 🦄, an unhealthy amount of ☕️💊 and of course ❤️.</p>
+        </div>
+        <div
+          class="md-layout-item md-side-50">
+          Fun isn’t something one considers when balancing their portfolio. <br>But this… does put a smile on my face - Thanos.</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 //import HelloWorld from "@/components/HelloWorld.vue";
+
+import logo from "@/assets/SnapLogo_large.svg";
 import router from "@/router";
 
 export default {
   name: "home",
-  components: {},
+  components: { logo },
   methods: {
-    handelLogin() {
+    goToCreate() {
       router.push({ name: "create" });
     }
   }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="83px" height="44px" viewBox="0 0 83 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54 (76480) - https://sketchapp.com -->
+    <title>Group 8</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Snap" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Dashboard-Logged-In" transform="translate(-628.000000, -792.000000)">
+            <g id="Group-8" transform="translate(670.000000, 811.500000) scale(1, -1) translate(-670.000000, -811.500000) translate(627.000000, 787.000000)">
+                <g id="Group-9" transform="translate(43.000000, 24.500000) rotate(-7.000000) translate(-43.000000, -24.500000) translate(3.000000, 5.000000)">
+                    <rect id="Rectangle" fill="#774C6C" x="40" y="0" width="20" height="39" rx="2"></rect>
+                    <rect id="Rectangle" fill="#774C6C" x="60" y="0" width="20" height="32" rx="2"></rect>
+                    <rect id="Rectangle" fill="#774C6C" x="20" y="0" width="20" height="32" rx="2"></rect>
+                    <rect id="Rectangle" fill="#774C6C" x="0" y="0" width="20" height="20" rx="2"></rect>
+                    <rect id="Rectangle" fill="#3D2738" x="5" y="6" width="11" height="10" rx="2"></rect>
+                </g>
+                <rect id="Rectangle" fill="#3D2738" transform="translate(32.992513, 29.547516) rotate(-6.000000) translate(-32.992513, -29.547516) " x="27.4925127" y="24.547516" width="11" height="10" rx="2"></rect>
+                <rect id="Rectangle" fill="#3D2738" transform="translate(54.992513, 34.547516) rotate(-6.000000) translate(-54.992513, -34.547516) " x="49.4925127" y="29.547516" width="11" height="10" rx="2"></rect>
+                <rect id="Rectangle" fill="#3D2738" transform="translate(72.992513, 24.547516) rotate(-6.000000) translate(-72.992513, -24.547516) " x="67.4925127" y="19.547516" width="11" height="10" rx="2"></rect>
+            </g>
+        </g>
+    </g>
+</svg>
