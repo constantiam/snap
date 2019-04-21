@@ -153,7 +153,6 @@ contract Fund is IFund {
         _tokens = _tokenAddresses;
         _distribution = _percentages;
         manualRebalance();
-        //TODO call the rebalance function and forward all eth
         _lastRebalance = now;
     }
 
@@ -170,7 +169,7 @@ contract Fund is IFund {
             IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
         } 
         //get the sell and buy amounts
-        IRebalancer(FundFactory(_factory).getRebabalncer())
+        // IRebalancer(FundFactory(_factory).getRebabalncer())
         //execute trades 
             //a for loop. still needs to call rebalancer to avoid the call being made inside a forloop. 
     }
@@ -180,13 +179,13 @@ contract Fund is IFund {
         notDisabled()
         isAdmin()
     {
-        for(uint i = 0; i < _tokens.length; i++) {
-            if(_tokens[i] == address(0x0) && i != 0) {
-                break;
-            }
-            uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-            IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
-        } 
+        // for(uint i = 0; i < _tokens.length; i++) {
+        //     if(_tokens[i] == address(0x0) && i != 0) {
+        //         break;
+        //     }
+        //     uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
+        //     IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
+        // } 
         
         //TODO make all arrays 100 length 
         //TODO: Call rebalancer with all eth

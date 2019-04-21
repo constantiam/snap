@@ -70,23 +70,19 @@ contract("Fund", (accounts) => {
         
         fundFactory = await FundFactory.new({ from: factoryOwner });
         await fundFactory.updateRebalancer( erc20Four.address, { from: factoryOwner });
-        // console.log(fundDetails.tokenAddresses);
-        // console.log(fundDetails.tokenPercentages);
+        let ethReserve = web3.utils.toWei("10", 'ether');
         let fundReceipt = await fundFactory.createFund(
             fundDetails.tokenAddresses,
             fundDetails.tokenPercentages,
             fundDetails.rebalancePeriod,
-            { from: fundOwner }
+            { from: fundOwner,
+            value: ethReserve }
         );
-        console.log(fundReceipt);
         let receivedFundOwner = fundReceipt.receipt.logs['0'].args['0'];
         let receivedFundAddress = fundReceipt.receipt.logs['0'].args['1'];
         let receivedFundUid = fundReceipt.receipt.logs['0'].args['2'];
-        console.log("0");
         fund = await Fund.at(receivedFundAddress);
-        console.log("0");
-        let ethReserve = web3.utils.toWei("10", 'ether')
-        await fund.init( { from: fundOwner, value: ethReserve } );
+        
         assert.equal(receivedFundOwner, fundOwner, "Owner address incorrect");
 
         await advanceBlock();
