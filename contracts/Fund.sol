@@ -81,7 +81,7 @@ contract Fund is IFund {
     }
 
     /**
-        @return address[] uint8[]: The array of token addresses
+        @return address[] int128[]: The array of token addresses
             and token percentages as decimals.
      */
     function getTokens()
@@ -134,7 +134,11 @@ contract Fund is IFund {
 
     /**
         param _tokenAddresses: The array of token addresses.
+            The first position in the array should be a 0x0 address
+            as this position represents Ether.
         param _percentages: The array of percentages as decimals.
+            The first position (pos[0]) in the array represents 
+            the Eth percentage the fund will hold.
         @notice This function will overried all previously 
             listed tokens, so should you want to add or remove 
             a token, simply omit or add the address and decimal 
@@ -150,6 +154,7 @@ contract Fund is IFund {
         notDisabled()
         isAdmin()
     {
+        require(_percentages[0] != 0, "Eth amount in fund cannot be 0");
         _tokens = _tokenAddresses;
         _distribution = _percentages;
         manualRebalance();
@@ -161,17 +166,8 @@ contract Fund is IFund {
         notDisabled()
     {
         require(_lastRebalance + _rebalancePeriod < now, "Rebalance period has not passed");
-        for(uint i = 0; i < _tokens.length; i++) {
-            if(_tokens[i] == address(0x0) && i != 0) {
-                break;
-            }
-            uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-            IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
-        } 
-        //get the sell and buy amounts
-        // IRebalancer(FundFactory(_factory).getRebabalncer())
-        //execute trades 
-            //a for loop. still needs to call rebalancer to avoid the call being made inside a forloop. 
+        //TODO: call rebalancer for trade orders
+        //TODO: call uniswap and make trades 
     }
 
     function manualRebalance()
@@ -179,24 +175,24 @@ contract Fund is IFund {
         notDisabled()
         isAdmin()
     {
-        // for(uint i = 0; i < _tokens.length; i++) {
-        //     if(_tokens[i] == address(0x0) && i != 0) {
-        //         break;
-        //     }
-        //     uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
-        //     IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
-        // } 
-        
-        //TODO make all arrays 100 length 
-        //TODO: Call rebalancer with all eth
+        //TODO: call rebalancer for trade orders
+        //TODO: call uniswap and make trades 
     }
 
+    /**
+        @notice Allows admins (the owner and factory) to disable the
+            fund. This function sends all the owned tokens (that the fund 
+            knows of) to the owner, then sends all the Eth the fund owns.
+        @dev Sends the balanceOf all listed tokens to owner. Emits FundDeath.
+            The factory is emabled to use this function incase of 
+            vulnrability.
+     */
     function killFund()
         public
         isAdmin()
     {
-        for(uint i = 0; i < _tokens.length; i++) {
-            if(_tokens[i] == address(0x0) && i != 0) {
+        for(uint i = 1; i < _tokens.length; i++) {
+            if(_tokens[i] == address(0x0)) {
                 break;
             }
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
@@ -210,10 +206,14 @@ contract Fund is IFund {
         _disabled = !_disabled;
     }
 
+    /**
+        @notice Allows for Eth to be deposited to the fund
+     */
     function() 
         external 
         payable 
+        notDisabled()
     { 
-        //TODO: 
+        
     }
 }
