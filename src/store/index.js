@@ -19,7 +19,10 @@ import * as mutations from "./mutation-types";
 import truffleContract from "truffle-contract";
 
 import FundFactoryABI from "../../build/contracts/FundFactory.json"
+import FundABI from "../../build/contracts/Fund.json"
+
 const FundFactory = truffleContract(FundFactoryABI);
+const Fund = truffleContract(FundABI);
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -34,6 +37,7 @@ export default new Vuex.Store({
     //not using the .json address as migrations are not fully compleat so was easier
     // to deploy via remix
     factoryAddress: '0x4f99d249039579e40a91a25815e6256c4710ccba',
+    setUserFunds: []
   },
   mutations: {
     //WEB3 Stuff
@@ -53,6 +57,9 @@ export default new Vuex.Store({
       state.web3 = web3;
     },
     [mutations.SET_NUMBER_OF_FUNDS]: async function (state, numberOfFunds) {
+      state.numberOfFunds = numberOfFunds;
+    },
+    [mutations.SET_NUMBER_USER_FUNDS]: async function (state, numberOfFunds) {
       state.numberOfFunds = numberOfFunds;
     },
   },
@@ -81,6 +88,7 @@ export default new Vuex.Store({
       state
     }, web3) {
       FundFactory.setProvider(web3.currentProvider)
+      Fund.setProvider(web3.currentProvider)
       // Set the web3 instance
       console.log("IN STORE")
       console.log(web3)
@@ -102,6 +110,40 @@ export default new Vuex.Store({
       state.numberOfFunds = numberOfFunds.toString(10)
       console.log(numberOfFunds.toString())
       commit(mutations.SET_NUMBER_OF_FUNDS, numberOfFunds.toString());
+
+      let userFunds = await fundFactory.getFundForOwner.call(state.account)
+      console.log("USER FUNDS")
+      console.log(userFunds)
+
+      let userFundsProcessed = []
+      userFunds.forEach(async function (fund) {
+        let fundDetails = await fundFactory.getFundDetails.call(fund.toString())
+        console.log("VALUE")
+        console.log(fundDetails[1].toString())
+        // userFundsProcessed.push(fundDetails.toString())
+        let fundContract = await Fund.at(fundDetails[1].toString())
+        let fundComponents = await fundContract.getTokens.call()
+        console.log("TOKENS")
+        console.log(fundComponents)
+        let fundComponentsProcessed = []
+        let count = 0
+
+        for (let i = 0; i < 100; i++) {
+          if (fundComponents[0][i] = '0x0000000000000000000000000000000000000000' && i !=0) {
+            break
+          }
+          fundComponentsProcessed.push({
+            token: fundComponents[0][i],
+            weighting: fundComponents[1][i]
+          })
+        }
+
+        console.log("COMMMPPP")
+        console.log(fundComponentsProcessed)
+
+      })
+      console.log("USER FUNDS P")
+      console.log(userFundsProcessed)
     },
     [actions.CREATE_FUND]: async function ({
       commit,
@@ -142,7 +184,6 @@ export default new Vuex.Store({
           rebalanceMultiplier = 60 * 60 * 24 * 30
           break
       }
-
       let rebalancePeriod = rebalanceMultiplier * params.rebalancePeriod
 
       console.log("period")
