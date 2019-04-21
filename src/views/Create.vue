@@ -4,12 +4,15 @@
       <div v-if="!started" class="md-layout-item">
         <div class="speech-bubble">
           <p>
-            <strong>Demo speech bubble</strong>
+            <strong>Welcome to Snap!</strong>
           </p>
-          <p>This is a simple CSS speech bubble.</p>
+          <p>Rebalancing your portfolio can be a difficult task, especially in a decentralised context, but Snap makes your life a little easier by letting you create rebalancing contracts. Just choose your assets and split, set a time period and top it up with funds and you're on your way to a balanced crypto fund. Let's get started!</p>
         </div>
         <!-- <face style="text-align: center; margin-left:1000px"/> -->
-        <img style="text-align: center; margin-left:1000px; width:250px" src="@/assets/ThanosFace.png"/>
+        <img
+          style="text-align: center; margin-left:1000px; width:250px"
+          src="@/assets/ThanosFace.png"
+        >
         <br>
         <md-button
           @click="started=true"
@@ -237,8 +240,11 @@
                   </p>
                   <p>Select the tokens you want to add to this Snapfund and choose your distribution ratios! Your portfolio will automatically rebalance to keep this ratio when your time period rolls around!</p>
                 </div>
-                
-                <img style="text-align: center; margin-left:1000px; width:250px" src="@/assets/ThanosFace.png"/>
+
+                <img
+                  style="text-align: center; margin-left:1000px; width:250px"
+                  src="@/assets/ThanosFace.png"
+                >
                 <br>
 
                 <md-button
@@ -346,7 +352,7 @@
                     >Back</md-button>
                     <md-button
                       :disabled="validSnapfund || setupValidation"
-                      @click="setDone('second', 'third')"
+                      @click="createFund"
                       class="md-raised md-primary"
                     >Create SnapFund 🚀</md-button>
                   </div>
@@ -433,8 +439,8 @@ export default {
     SnapfundName: "",
     rebalanceEvery: 0,
     rebalancePeriod: "",
-    started: false,
     addedEther: 0,
+    started: false,
     active: "first",
     first: false,
     second: false,
@@ -507,6 +513,20 @@ export default {
           return token.symbol;
         })
         .indexOf(token.symbol);
+    },
+    createFund() {
+      let selected = this.selected;
+      let SnapfundName = this.SnapfundName;
+      let rebalanceEvery = this.rebalanceEvery;
+      let rebalancePeriod = this.rebalancePeriod;
+      let addedEther = this.addedEther;
+      this.$store.dispatch(actions.CREATE_FUND, {
+        selected,
+        SnapfundName,
+        rebalanceEvery,
+        rebalancePeriod,
+        addedEther
+      });
     }
   },
   computed: {

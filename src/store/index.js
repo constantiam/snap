@@ -17,11 +17,9 @@ import * as actions from "./actions";
 import * as mutations from "./mutation-types";
 
 import truffleContract from "truffle-contract";
-// import VyperStorageABI from "../../build/contracts/VyperStorage.json"
-// const VyperStorage = truffleContract(VyperStorageABI)
-// import RadiCardsABI from "../../build/contracts/RadiCards.json";
-// const RadiCards = truffleContract(RadiCardsABI);
 
+import FundFactoryABI from "../../build/contracts/FundFactory.json"
+const FundFactory = truffleContract(FundFactoryABI);
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -30,7 +28,12 @@ export default new Vuex.Store({
     account: null,
     currentNetwork: null,
     etherscanBase: null,
-    TokenInfo: null
+    TokenInfo: null,
+    numberOfFunds: null,
+    //for now we pull this directly from the address. this is deployed on rinkeby
+    //not using the .json address as migrations are not fully compleat so was easier
+    // to deploy via remix
+    factoryAddress: '0x4f99d249039579e40a91a25815e6256c4710ccba',
   },
   mutations: {
     //WEB3 Stuff
@@ -49,6 +52,9 @@ export default new Vuex.Store({
     [mutations.SET_WEB3]: async function (state, web3) {
       state.web3 = web3;
     },
+    [mutations.SET_NUMBER_OF_FUNDS]: async function (state, numberOfFunds) {
+      state.numberOfFunds = numberOfFunds;
+    },
   },
   actions: {
     [actions.GET_CURRENT_NETWORK]: function ({
@@ -62,13 +68,11 @@ export default new Vuex.Store({
       getEtherscanAddress().then(etherscanBase => {
         commit(mutations.SET_ETHERSCAN_NETWORK, etherscanBase);
       });
-      console.log('get')
       getTokenInfo().then(TokenInfo => {
         console.log("TokenInfo")
         console.log(TokenInfo)
         commit(mutations.SET_TOKEN_ADDRESSES, TokenInfo)
       })
-
     },
 
     [actions.INIT_APP]: async function ({
@@ -76,8 +80,7 @@ export default new Vuex.Store({
       dispatch,
       state
     }, web3) {
-      // VyperStorage.setProvider(web3.currentProvider)
-      // RadiCards.setProvider(web3.currentProvider);
+      FundFactory.setProvider(web3.currentProvider)
       // Set the web3 instance
       console.log("IN STORE")
       console.log(web3)
@@ -93,11 +96,63 @@ export default new Vuex.Store({
       if (account) {
         commit(mutations.SET_ACCOUNT, account);
       }
-
-      //let contract = await RadiCards.deployed();
-      // let VyperStorageContract = await VyperStorage.deployed()
+      let fundFactory = await FundFactory.at(state.factoryAddress)
       console.log("logging vyper from UI")
-      // console.log((await VyperStorageContract.get()).toString(10))
+      let numberOfFunds = await fundFactory.getAllFundUids()
+      state.numberOfFunds = numberOfFunds.toString(10)
+      console.log(numberOfFunds.toString())
+      commit(mutations.SET_NUMBER_OF_FUNDS, numberOfFunds.toString());
+    },
+    [actions.CREATE_FUND]: async function ({
+      commit,
+      dispatch,
+      state
+    }, params) {
+      console.log("IN FUND CALL")
+      console.log(params)
+
+      let tokenArray = Array(100).fill(null).map((u, i) => '0x0000000000000000000000000000000000000000')
+      let weightingArray = Array(100).fill(null).map((u, i) => 0)
+
+      let count = 0
+      params.selected.forEach(function (token) {
+        tokenArray[count] = token.tokenAddresses
+        weightingArray[count] = token.ratio
+        count++
+      })
+
+      console.log("VAA")
+      console.log(tokenArray)
+      console.log(weightingArray)
+
+
+
+      let rebalanceMultiplier = 0
+      switch (params.rebalanceEvery) {
+        case 'hour':
+          rebalanceMultiplier = 60 * 60
+          break;
+        case 'day':
+          rebalanceMultiplier = 60 * 60 * 24
+          break
+        case 'week':
+          rebalanceMultiplier = 60 * 60 * 24 * 7
+          break
+        case 'month':
+          rebalanceMultiplier = 60 * 60 * 24 * 30
+          break
+      }
+
+      let rebalancePeriod = rebalanceMultiplier * params.rebalancePeriod
+
+      console.log("period")
+      console.log(rebalancePeriod)
+
+      let fundFactory = await FundFactory.at(state.factoryAddress)
+      await fundFactory.createFund(tokenArray, weightingArray, rebalancePeriod, {
+        from: state.account,
+        value: state.web3.web3.utils.toWei(params.addedEther, "ether")
+      })
     }
   }
 })
