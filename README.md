@@ -47,6 +47,16 @@ To get the front end running locally, run:
 yarn serv
 ```
 
+#### Running Snap Backtester App
+
+```
+cd snap-backtest-app
+docker build --rm -t backtester-app .
+docker run --rm -p 8050:8050 -t backtester-app
+```
+
+For all analyses check `./notebooks/`.
+
 Have a balanced time!
 <div align="center">
     <img src="./images/gif.gif">
