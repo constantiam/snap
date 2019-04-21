@@ -135,7 +135,7 @@ contract("FundFactory", (accounts) => {
             { from: fundOwner }
         );
         let allFunds = await fundFactory.getAllFundUids();
-        assert.equal(allFunds.toNumber(), 4, "There are an incorrect number of funds");
+        assert.equal(allFunds.toNumber(), 2, "There are an incorrect number of funds");
     });
 
     it("Getting fund details", async () => {

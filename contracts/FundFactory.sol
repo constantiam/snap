@@ -39,6 +39,10 @@ contract FundFactory {
         return _fundNonce - 1;
     }
 
+    /**
+        @param _fundOwner : The address of the fund owner
+        @return uint256[]: Array of UIDs of funds
+     */
     function getFundForOwner(address _fundOwner)
         public
         view
@@ -81,6 +85,9 @@ contract FundFactory {
         _rebalancer = _newRebalancer;
     }
 
+    /**
+        @dev Creates a fund
+     */
     function createFund(
         address[100] memory _tokenAddresses,
         int128[100] memory _percentages,
@@ -119,6 +126,4 @@ contract FundFactory {
             emit AllFundsDeath(allFunds[i].owner, allFunds[i].fundAddress);
         }
     }
-
-    //TODO: intergrate : deploying the rebalancer, updating the rebalancer
 }
