@@ -1,8 +1,21 @@
 <template>
   <div class="page-container">
-    <div class="md-layout" style="margin-left:30px; margin-right:30px;">
+    <div class="md-layout">
       <div v-if="!started" class="md-layout-item">
-        <md-button @click="started=true" class="md-primary md-raised">Get Started</md-button>
+        <div class="speech-bubble">
+          <p>
+            <strong>Demo speech bubble</strong>
+          </p>
+          <p>This is a simple CSS speech bubble.</p>
+        </div>
+        <!-- <face style="text-align: center; margin-left:1000px"/> -->
+        <img style="text-align: center; margin-left:1000px; width:250px" src="@/assets/ThanosFace.png"/>
+        <br>
+        <md-button
+          @click="started=true"
+          class="md-primary md-raised"
+          style="text-align: center; margin-left:800px"
+        >Get Started</md-button>
       </div>
 
       <div v-if="started" class="md-layout-item">
@@ -10,16 +23,17 @@
           <md-step
             id="first"
             md-label="Snapfund setup"
-            style="background-color: #FAFAFA; padding-left:0px; padding-right:0px"
+            style="background-color: #F0F2F5; padding-left:0px; padding-right:0px"
             :md-done.sync="first"
           >
             <div class="md-layout md-gutter">
-              <div class="md-layout-item">
+              <div class="md-layout-item" style="padding-left:0px; padding-right:0px">
                 <md-card style="padding:20px">
                   <h3>Set rebalance period</h3>
                   <p>
                     Your fund will rebalance automatically everytime this period
-                    passes. You can change this later.
+                    passes.
+                    <br>You can change this later.
                   </p>
                   <div class="md-layout md-gutter">
                     <!-- <div class="md-layout-item">Rebalance Every:</div> -->
@@ -47,10 +61,13 @@
                   </div>
                 </md-card>
               </div>
-              <div class="md-layout-item">
-                <md-card style="padding:20px;">
+              <div class="md-layout-item" style="padding-left:0px; padding-right:0px">
+                <md-card style="padding:20px">
                   <h3>Set your first contribution amount!</h3>
-                  <p>This will be traded to achieve your desired Snapfund. You can add more or remove funds later.</p>
+                  <p>
+                    This will be traded to achieve your desired Snapfund.
+                    <br>You can add more or remove funds later.
+                  </p>
                   <div class="md-layout md-gutter">
                     <div class="md-layout-item">
                       <md-field>
@@ -65,10 +82,10 @@
             </div>
 
             <div class="md-layout">
-              <div class="md-layout-item">
-                <md-card style="padding:20px;  margin-top:20px">
+              <div class="md-layout-item" style="padding-left:0px; padding-right:0px">
+                <md-card style="padding:20px; margin-top:20px; margin-left:0px; margin-right:0px">
                   <div class="md-layout">
-                    <div class="md-layout-item">
+                    <div class="md-layout-item" style="padding-left:0px; padding-right:0px">
                       <h3>Name your Snapfund!</h3>
                       <p>You’ll get a sweet ENS domain, so make it catchy and at least 7 characters long.</p>
                       <md-field style="width:200px">
@@ -93,14 +110,14 @@
           <md-step
             id="second"
             md-label="Fund Distribution"
-            style="background-color: #FAFAFA; padding-left:0px; padding-right:0px"
+            style="background-color: #F0F2F5; padding-left:0px; padding-right:0px"
             :md-done.sync="second"
             :disabled="setupValidation"
           >
             <div>
               <div v-if="selected.length > 0">
                 <div class="md-layout md-gutter">
-                  <div class="md-layout-item">
+                  <div class="md-layout-item" style="padding-left:0px; padding-right:0px">
                     <md-card style="padding:20px;  margin-top:20px">
                       <div class="md-layout md-gutter">
                         <div class="md-layout-item">
@@ -154,7 +171,7 @@
                     </md-card>
                   </div>
 
-                  <div class="md-layout-item">
+                  <div class="md-layout-item" style="padding-left:0px; padding-right:0px">
                     <md-card
                       class="md-alignment-center-center"
                       style="padding:20px;  margin-top:20px"
@@ -183,9 +200,7 @@
                               <md-table-cell>
                                 <span class="dot" :style="'background:' + colors[index]"/>
                               </md-table-cell>
-                              <md-table-cell>
-                                {{item.symbol}}
-                              </md-table-cell>
+                              <md-table-cell>{{item.symbol}}</md-table-cell>
                               <md-table-cell>${{Math.round((item.ratio / 100) * addedEtherUsdValue)}}</md-table-cell>
                               <md-table-cell>{{item.ratio}}%</md-table-cell>
                             </md-table-row>
@@ -215,15 +230,24 @@
                   </div>
                 </div>
               </div>
-              <div>
-                <md-empty-state
-                  md-icon="account_balance"
-                  md-label="Create a new Snapfund"
-                  md-description="Enter a Snapfund name above and then start adding tokens. You can select the diffrent ratios for each and select a rebalance period."
-                  v-if="selected.length==0"
+              <div v-if="selected.length==0">
+                <div class="speech-bubble">
+                  <p>
+                    <strong>Add tokens to your Snapfund</strong>
+                  </p>
+                  <p>Select the tokens you want to add to this Snapfund and choose your distribution ratios! Your portfolio will automatically rebalance to keep this ratio when your time period rolls around!</p>
+                </div>
+                
+                <img style="text-align: center; margin-left:1000px; width:250px" src="@/assets/ThanosFace.png"/>
+                <br>
+
+                <md-button
+                  @click="showSelectTokenModal"
+                  class="md-primary md-raised"
+                  style="text-align: center; margin-left:850px"
                 >
-                  <md-button @click="showSelectTokenModal" class="md-primary md-raised">Add Tokens</md-button>
-                </md-empty-state>
+                  <md-icon>add</md-icon>Add Tokens
+                </md-button>
               </div>
             </div>
           </md-step>
@@ -232,10 +256,10 @@
             id="third"
             md-label="Confirmation"
             :md-done.sync="third"
-            style="background-color: #FAFAFA; padding-left:0px; padding-right:0px"
+            style="background-color: #F0F2F5; padding-left:0px; padding-right:0px"
           >
             <div class="md-layout md-gutter">
-              <div class="md-layout-item">
+              <div class="md-layout-item" style="padding-left:0px; padding-right:0px">
                 <md-card style="padding:20px;  margin-top:20px">
                   <h2>Final Distribution</h2>
                   <div class="md-layout md-gutter">
@@ -265,7 +289,7 @@
                   </div>
                 </md-card>
               </div>
-              <div class="md-layout-item">
+              <div class="md-layout-item" style="padding-left:0px; padding-right:0px">
                 <md-card style="padding:20px;  margin-top:20px">
                   <h2>Confirm your Snapfund details</h2>
                   <div class="md-layout md-gutter md-alignment-center-center">
@@ -399,9 +423,11 @@ import * as mutations from "@/store/mutation-types";
 import ClickableAddress from "@/components/widgets/ClickableAddress";
 import { mapActions, mapState } from "vuex";
 import { constants } from "fs";
+import face from "@/assets/ThanosFace.svg";
+
 export default {
   name: "create",
-  components: { ClickableAddress },
+  components: { ClickableAddress, face },
   data: () => ({
     selected: [],
     SnapfundName: "",
@@ -591,5 +617,32 @@ export default {
   background-color: #bbb;
   border-radius: 50%;
   display: inline-block;
+}
+.speech-bubble {
+  background: #ffffff;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  line-height: 1.3;
+  margin: 0 auto 40px;
+  max-width: 400px;
+  padding: 15px;
+  position: relative;
+}
+
+.speech-bubble p {
+  margin: 0 0 10px;
+}
+.speech-bubble p:last-of-type {
+  margin-bottom: 0;
+}
+
+.speech-bubble::after {
+  border-left: 20px solid transparent;
+  border-top: 20px solid #ffffff;
+  bottom: -20px;
+  content: "";
+  position: absolute;
+  right: 20px;
 }
 </style>
