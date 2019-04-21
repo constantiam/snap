@@ -3,6 +3,7 @@ pragma solidity 0.5.0;
 import "./IFund.sol";
 import "./FundFactory.sol";
 import "./IERC20.sol";
+import "./IRebalancer.sol";
 
 /**
     @author nicca42
@@ -168,8 +169,10 @@ contract Fund is IFund {
             uint256 balance = IERC20(_tokens[i]).balanceOf(address(this));
             IERC20(_tokens[i]).transfer(FundFactory(_factory).getRebabalncer(), balance);
         } 
-        //TODO make all arrays 100 length 
-        //TODO: Call rebalancer with all eth
+        //get the sell and buy amounts
+        IRebalancer(FundFactory(_factory).getRebabalncer())
+        //execute trades 
+            //a for loop. still needs to call rebalancer to avoid the call being made inside a forloop. 
     }
 
     function manualRebalance()

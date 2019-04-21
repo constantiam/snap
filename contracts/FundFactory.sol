@@ -96,7 +96,7 @@ contract FundFactory {
             msg.sender,
             _rebalancePeriod
         );
-        // fund.init.value(msg.value)();
+        fund.init.value(msg.value)();
         // uint256 fundUid = _fundNonce;
         // allFunds[fundUid] = AFund({
         //     uid: fundUid,

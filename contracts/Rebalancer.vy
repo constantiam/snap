@@ -80,7 +80,6 @@ def rebalanceFund(_tokenAddress: address[100], _weightings: int128[100], _number
   buyOrdersValues: uint256[100]
   buyOrdersExchanges: address[100]
   buyOrderCount: int128 = 0
-
   
   sellOrdersValues: uint256[100]
   sellOrdersExchanges: address[100]

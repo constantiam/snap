@@ -78,7 +78,7 @@ contract("Fund", (accounts) => {
             fundDetails.rebalancePeriod,
             { from: fundOwner }
         );
-        console.log("0");
+        console.log(fundReceipt);
         let receivedFundOwner = fundReceipt.receipt.logs['0'].args['0'];
         let receivedFundAddress = fundReceipt.receipt.logs['0'].args['1'];
         let receivedFundUid = fundReceipt.receipt.logs['0'].args['2'];
