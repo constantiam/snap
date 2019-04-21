@@ -1,20 +1,20 @@
-//tests helpers
+// //tests helpers
 
-const {
-    assertRevert
-} = require('./helpers/assertRevert');
-const {
-    sendTransaction
-} = require('./helpers/sendTransaction');
-const advanceBlock = require("./helpers/advanceToBlock");
-const _ = require("lodash");
-const BigNumber = web3.BigNumber;
+// const {
+//     assertRevert
+// } = require('./helpers/assertRevert');
+// const {
+//     sendTransaction
+// } = require('./helpers/sendTransaction');
+// const advanceBlock = require("./helpers/advanceToBlock");
+// const _ = require("lodash");
+// const BigNumber = web3.BigNumber;
 
-//libraries
-require("chai")
-    .use(require("chai-as-promised"))
-    .use(require("chai-bignumber")(BigNumber))
-    .should();
+// //libraries
+// require("chai")
+//     .use(require("chai-as-promised"))
+//     .use(require("chai-bignumber")(BigNumber))
+//     .should();
 
 //contracts
 const Rebalancer = artifacts.require("Rebalancer");
@@ -30,9 +30,9 @@ contract("Rebalancer", (accounts) => {
     const tokenOwner = accounts[4]
     const fundOwner = accounts[5]
 
-    const weekDuration = 604800 //one week in seconds
-    const monthDuration = 2628000000
-    const deadline = 1742680400 //some point in the future
+//     const weekDuration = 604800 //one week in seconds
+//     const monthDuration = 2628000000
+//     const deadline = 1742680400 //some point in the future
 
     //for this given reserve ratio the price of 1 dai in eth will be 0.01 eth/dai 
     // giving the value of 100 usd per eth. For mkr a price of  5 eth/mkr is set
@@ -141,7 +141,7 @@ contract("Rebalancer", (accounts) => {
         console.log("Mkr exchange Mkr balance")
         console.log(tokenBalance.toString())
 
-        currentEthPrice = tokenBalance / ethBalance
+//         currentEthPrice = tokenBalance / ethBalance
 
         console.log("Mkr exchange ETH balance price per eth in Mkr")
         console.log(currentEthPrice.toString())
