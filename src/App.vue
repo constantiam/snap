@@ -1,46 +1,71 @@
 <template>
-    <md-app id="app" md-mode="reveal" style="min-height: 100vh;">
-      <md-app-toolbar class="md-primary">
-        <md-button class="md-icon-button" @click="menuVisible = !menuVisible">
-          <md-icon>menu</md-icon>
-        </md-button>
-        <span class="md-title">My Title
-          <img src="/static/images/SnapLogo_large.svg" alt="SnapLogo">
-        </span>
-      </md-app-toolbar>
+  <md-app id="app" md-mode="reveal" style="min-height: 100vh;">
+    <md-app-toolbar class="md-primary">
+      <md-button class="md-icon-button" @click="menuVisible = !menuVisible">
+        <md-icon>menu</md-icon>
+      </md-button>
+      <span class="md-title">{{route}}Home Page</span>
 
-      <md-app-drawer :md-active.sync="menuVisible">
-        <md-toolbar class="md-transparent" md-elevation="0">Navigation</md-toolbar>
+      <logo style="margin-left:600px"/>
 
-        <md-list>
-          <md-list-item>
-            <md-icon>move_to_inbox</md-icon>
-            <span class="md-list-item-text">Inbox</span>
-          </md-list-item>
+      <div class="md-toolbar-section-end">
+        <div
+          class="md-layout md-gutter md-alignment-center-right"
+          style="text-align:right; width:500px"
+        >
+          <div class="md-layout-item">
+            <div class="md-subheading">{{currentNetwork}}</div>
+          </div>
+          <div class="md-layout-item">
+            <div class="md-subheading">
+              <clickable-address :eth-address="account"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </md-app-toolbar>
 
-          <md-list-item>
-            <md-icon>send</md-icon>
-            <span class="md-list-item-text">Sent Mail</span>
-          </md-list-item>
+    <md-app-drawer :md-active.sync="menuVisible">
+      <!-- <md-toolbar class="md-transparent" md-elevation="0">Navigation</md-toolbar> -->
 
-          <md-list-item>
-            <md-icon>delete</md-icon>
-            <span class="md-list-item-text">Trash</span>
-          </md-list-item>
+      <md-list>
+        <md-list-item>
+          <md-icon>home</md-icon>
+          <span class="md-list-item-text" @click="redirect('home')">Home</span>
+        </md-list-item>
 
-          <md-list-item>
-            <md-icon>error</md-icon>
-            <span class="md-list-item-text">Spam</span>
-          </md-list-item>
-        </md-list>
-      </md-app-drawer>
+        <md-list-item>
+          <md-icon>create</md-icon>
+          <span class="md-list-item-text">Create Snapfund</span>
+        </md-list-item>
 
-      <md-app-content>
-        <router-view/>
-      </md-app-content>
-    </md-app>
-  
-  
+        <md-list-item>
+          <md-icon>inbox</md-icon>
+          <span class="md-list-item-text">Manage Snapfund</span>
+        </md-list-item>
+
+        <md-list-item>
+          <md-icon>compare</md-icon>
+          <span class="md-list-item-text">Backtest Snapfund</span>
+        </md-list-item>
+
+        <md-list-item>
+          <md-icon>code</md-icon>
+          <span class="md-list-item-text">Github</span>
+        </md-list-item>
+
+        <md-list-item>
+          <md-icon>chat</md-icon>
+          <span class="md-list-item-text">Telegram</span>
+        </md-list-item>
+      </md-list>
+    </md-app-drawer>
+
+    <md-app-content>
+      <router-view/>
+    </md-app-content>
+  </md-app>
+
   <!-- <div id="app">
     <div id="nav">
       <div class="md-layout">
@@ -62,7 +87,7 @@
       <hr>
     </div>
     <router-view/>
-  </div> -->
+  </div>-->
 </template>
 
 <script>
@@ -73,16 +98,26 @@ import * as actions from "@/store/actions";
 import * as mutations from "@/store/mutation-types";
 import ClickableAddress from "@/components/widgets/ClickableAddress";
 import { mapActions, mapState } from "vuex";
+import router from "@/router";
+
+import logo from "@/assets/SnapLogo.svg";
+// import logo from "@/assets/SnapLogo.svg";
+
 export default {
   name: "app",
-  components: { ClickableAddress },
+  components: { ClickableAddress, logo },
   data() {
     return {
       web3Detected: true,
       menuVisible: false
     };
   },
-  methods: { ...mapActions(["INIT_APP"]) },
+  methods: {
+    ...mapActions(["INIT_APP"]),
+    redirect(_path) {
+      router.push({ name: _path });
+    }
+  },
   async mounted() {
     if (window.ethereum) {
       window.web3 = new Web3(ethereum);
@@ -131,18 +166,23 @@ export default {
 </script>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css?family=Space+Mono');
+@import url("https://fonts.googleapis.com/css?family=Space+Mono");
 @import "~vue-material/dist/theme/engine"; // Import the theme engine
 
-@include md-register-theme("default", (
-  primary: #7E496E, // The primary color of your brand
-  accent: #A78C9F // The secondary color of your brand
-));
+@include md-register-theme(
+  "default",
+  (
+    primary: #7e496e,
+    // The primary color of your brand
+      accent: #a78c9f // The secondary color of your brand
+  )
+);
 
 @import "~vue-material/dist/theme/all"; // Apply the theme
 
-html, body {
-  font-family: 'Space Mono', sans-serif;
+html,
+body {
+  font-family: "Space Mono", sans-serif;
 }
 
 #app {
@@ -152,6 +192,6 @@ html, body {
 }
 
 #app {
-  font-family: 'Space Mono', sans-serif;
+  font-family: "Space Mono", sans-serif;
 }
 </style>

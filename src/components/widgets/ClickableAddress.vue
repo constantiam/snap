@@ -1,7 +1,7 @@
 <template>
   <div v-if="ethAddress" class="md-layout">
     <jazzicon :address="ethAddress" :diameter="25"/>
-    <a class="eth-address a--external" :href="buildLink" target="_blank">{{ dotDotDot }}</a>
+    <a class="eth-address md-subheading" :href="buildLink" target="_blank" style="color: white;">{{ dotDotDot }}</a>
   </div>
 </template>
 
