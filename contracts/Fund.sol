@@ -58,6 +58,12 @@ contract Fund is IFund {
         _distribution = _percentages;
     }
 
+    /**
+        @notice Allows the fund to recive Ether on creation and 
+            adds the tokens. Only callable by owner or factory.
+        @dev Adds the tokesn through the add token, which triggers
+            a rebalance.
+     */
     function init()
         public
         payable
@@ -92,6 +98,10 @@ contract Fund is IFund {
         return(_tokens, _distribution);
     }
 
+    /**
+        @return uint256: The rebalance period.
+        @dev Unix time.
+     */
     function getRebalancePeriod()
         public
         view
@@ -100,6 +110,9 @@ contract Fund is IFund {
         return _rebalancePeriod;
     }
 
+    /**
+        @return uint256: The time of the last rebalance
+     */
     function getLastRebalance()
         public
         view
@@ -108,6 +121,9 @@ contract Fund is IFund {
         return _lastRebalance;
     }
 
+    /**
+        @return uint256: The time of the next rebalance
+     */
     function getNextRebalance()
         public
         view
@@ -116,6 +132,12 @@ contract Fund is IFund {
         return _lastRebalance + _rebalancePeriod;
     }
 
+    /**
+        @param _tokenPosition : The position of the token in the
+            array.
+        @return uint256: Returns the balance of the fund of the
+            token.
+     */
     function getBalanceOfToken(uint256 _tokenPosition) 
         public
         view
@@ -167,7 +189,7 @@ contract Fund is IFund {
     {
         require(_lastRebalance + _rebalancePeriod < now, "Rebalance period has not passed");
         //TODO: call rebalancer for trade orders
-        //TODO: call uniswap and make trades 
+        //TODO: call uniswap and make trades
     }
 
     function manualRebalance()

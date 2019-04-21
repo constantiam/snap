@@ -81,6 +81,9 @@ contract FundFactory {
         _rebalancer = _newRebalancer;
     }
 
+    /**
+        @dev Creates a fund
+     */
     function createFund(
         address[100] memory _tokenAddresses,
         int128[100] memory _percentages,
@@ -119,6 +122,4 @@ contract FundFactory {
             emit AllFundsDeath(allFunds[i].owner, allFunds[i].fundAddress);
         }
     }
-
-    //TODO: intergrate : deploying the rebalancer, updating the rebalancer
 }
