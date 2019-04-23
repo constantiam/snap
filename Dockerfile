@@ -1,7 +1,7 @@
 FROM node:10
 COPY ./ /app
 WORKDIR /app
-RUN yarn install && npm build
+RUN yarn install && yarn build
 
 FROM nginx
 RUN mkdir /app
