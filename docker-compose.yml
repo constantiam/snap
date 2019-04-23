@@ -1,0 +1,15 @@
+#Docker compose file for building the DockerFile and
+# and mounting the volumes
+version: '3'
+services: 
+  nginx:
+    build: .
+    ports:
+      - "80:8080"
+      # - "443:443"
+    # volumes: 
+    #   - ~/cert:/etc/cert
+    # environment:
+    #   AUTH0_DOMAIN: "registree.eu.auth0.com"
+    #   API_IDENTIFIER: "https://registree.rocks/apis"
+    #   ALGORITHMS: "['RS256']"
