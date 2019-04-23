@@ -46,7 +46,7 @@
 
         <md-list-item>
           <md-icon>compare</md-icon>
-          <span class="md-list-item-text"><a href="https://backtester.ethsnap.fund" target="__blank"> Backtest SnapFund</a></span>
+          <span class="md-list-item-text"><a href="http://backtester.ethsnap.fund" target="__blank"> Backtest SnapFund</a></span>
         </md-list-item>
 
         <md-list-item>

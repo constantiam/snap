@@ -350,9 +350,13 @@
                       @click="setDone('first', 'second')"
                       class="md-secondary md-raised"
                     >Back</md-button>
-                    <md-button
+                    <!-- <md-button
                       :disabled="validSnapfund || setupValidation"
                       @click="createFund"
+                      class="md-raised md-primary"
+                    >Create SnapFund 🚀</md-button> -->
+                    <md-button
+                      @click="createFund = true"
                       class="md-raised md-primary"
                     >Create SnapFund 🚀</md-button>
                   </div>
@@ -420,6 +424,11 @@
       </div>
       <div class="md-layout"></div>
     </modal>
+    <md-dialog-alert
+      :md-active.sync="createFund"
+      md-title="Creating funds is currently disabled!"
+      md-content="We are currently working hard on getting a main net product ready. Please join our telegram chat and follow us on twitter to be notified when we launch🚀"
+    />
   </div>
 </template>
 
@@ -456,7 +465,8 @@ export default {
       "#D5F871",
       "#67E6ED",
       "#7B66F7"
-    ]
+    ],
+    createFund: false
   }),
   methods: {
     setDone(id, index) {
