@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
-    <div style="margin-left: 50px; margin-top: 100px; width:1800px">
+    <div style="margin-left: 50px; margin-top: 100px">
       <div class="md-layout md-gutter">
-        <div class="md-layout-item md-side-60">
+        <div class="md-layout-item md-size-60">
           <span class="md-display-3">
             Perfectly balanced,
             <br>as all things should be.
@@ -16,15 +16,15 @@
 
           <md-button class="md-raised md-primary" @click="goToCreate" style="margin-top:25px">Begin</md-button>
         </div>
-        <div class="md-layout-item md-side-40">
+        <div class="md-layout-item md-size-40">
           <img
             style="text-align: center; width:500px; margin-left:50px; margin-top:-100px;"
             src="@/assets/gif.gif"
           >
         </div>
       </div>
-      <div class="md-layout md-gutter md-alignment-bottom-right" style="padding-top:200px">
-        <div class="md-layout-item md-side">
+      <div class="md-layout md-gutter" style="padding-top:200px">
+        <div class="md-layout-item">
           <p>
             Slap on a TCR
             <br>TCRs are pretty cool.
@@ -33,7 +33,7 @@
             <br>which woulld be pretty neat.
           </p>
         </div>
-        <div class="md-layout-item md-side">
+        <div class="md-layout-item">
           <p>
             Manage a fund with a DAO
             <br>The more the merrier!
@@ -42,29 +42,28 @@
             <br>have a lot of potential
           </p>(probably)
         </div>
-        <div class="md-layout-item md-side">
+        <div class="md-layout-item">
           Risk reduction
           <br>Investing is tricky.
           <br>Triggers a lot of fun cognitive biases.
           <br>Help newbies trade responsibly
           <br>and take profits on the way up!
         </div>
-        <div class="md-layout-item md-side">
+        <div class="md-layout-item">
           <p>
-            Profit Stokvels
-            <br>Stokvels are neat.
-            <br>Wikipedia explains them well.
+            Profit Stokvels Stokvels 
+            <br>are neat. Wikipedia explains them well.
             <br>Why not use crypto assets and give
             <br> rebalanced profits to a member every period!
           </p>
         </div>
       </div>
       <div class="md-layout md-gutter md-alignment-bottom-right" style="padding-top:100px">
-        <div class="md-layout-item md-side-50">
+        <div class="md-layout-item md-size-50">
           <p>Built with Ethereum, Uniswap 🦄, an unhealthy amount of ☕️💊 and of course ❤️.</p>
         </div>
-        <div class="md-layout-item md-side-50">
-          Fun isn’t something one considers when balancing their portfolio.
+        <div class="md-layout-item md-size-50">
+          Fun isn’t something one consizers when balancing their portfolio.
           <br>But this… does put a smile on my face - Thanos.
         </div>
       </div>
